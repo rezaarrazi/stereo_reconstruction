@@ -1,4 +1,4 @@
-# Stereo Vision Project
+# Stereo Reconstruction Project
 
 ## Overview
 This project is a stereo reconstruction project that aims at reconstructing 3D scenes from a pair of images and comparing the performance of 
