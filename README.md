@@ -10,8 +10,8 @@ The dataset used in the project is the [Middlebury Stereo Datasets](https://visi
 
 ## Prerequisites
 
-* A modern C++ compiler (C++14 or higher is required)
-* CMake (version 3.13 or higher is required)
+* A modern C++ compiler (C++11 or higher is required)
+* CMake (version 2.8 or higher is required)
 * OpenCV
 * Eigen
 * Google Log (glog)
