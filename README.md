@@ -1,18 +1,22 @@
 # Stereo Vision Project
 
 ## Overview
-This project is a stereo vision application that loads and processes images from a specific dataset. The application is developed in C++ and uses the Eigen, Google Log (glog), Ceres Solver, and OpenCV libraries.
+This project is a stereo reconstruction project that aims at reconstructing 3D scenes from a pair of images and comparing the performance of 
+different algorithms. The project is developed in C++ and uses OpenCV, Eigen, Google Log (glog), Ceres Solver, and g2o libraries. 
 
-The application loads stereo pairs, ground truth disparity maps (.pfm files), and calibration data from the [Middlebury Stereo Datasets](https://vision.middlebury.edu/stereo/data/scenes2021/). The images are then processed to compute disparity maps using a stereo vision algorithm.
+## Dataset 
+
+The dataset used in the project is the [Middlebury Stereo Datasets](https://vision.middlebury.edu/stereo/data/scenes2021/). 
 
 ## Prerequisites
 
 * A modern C++ compiler (C++14 or higher is required)
 * CMake (version 3.13 or higher is required)
-* Eigen library
-* Google Log (glog) library
-* Ceres Solver library
-* OpenCV library
+* OpenCV
+* Eigen
+* Google Log (glog)
+* Ceres Solver
+* g2o 
 
 ## Building the Project
 
@@ -23,8 +27,6 @@ The application loads stereo pairs, ground truth disparity maps (.pfm files), an
 
 ## Running the Application
 
-After building the project, you can run the application with the command `./stereo`.
+After building the project, you can run the executable files in the `build` folder. 
 
-## Dataset
 
-The dataset used for this project can be downloaded from the following link: [Middlebury Stereo Datasets](https://vision.middlebury.edu/stereo/data/scenes2021/)
