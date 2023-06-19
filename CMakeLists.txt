@@ -13,7 +13,8 @@ include_directories(${OpenCV_INCLUDE_DIRS}
                     ${CMAKE_CURRENT_SOURCE_DIR}
                    )
 
-set(TEST src/stereo_dataset.h src/stereo_dataset.cpp src/test.cpp)
+set(TEST src/stereo_dataset.h src/stereo_dataset.cpp src/feature_extractor.h src/feature_extractor.cpp
+         src/sparse_matcher.h src/sparse_matcher.cpp src/test.cpp)
 add_executable(test ${TEST})
 target_link_libraries(test ${OpenCV_LIBS})
 
