@@ -46,7 +46,16 @@ class StereoDataset
 
         std::array<cv::Mat, 2> GetCameraIntrinsics() const;
 
-        void SetImages(std::size_t image_id);
+        std::size_t GetImageWidth() const;
+        std::size_t GetImageHeight() const;
+        cv::Size GetImageSize() const;
+
+        std::size_t GetMinDisparity() const;
+        std::size_t GetMaxDisparity() const;
+
+        std::array<cv::Mat, 2> GetDisparities() const;
+
+        void SetImages(int image_id);
 
         void SetDisparities(std::size_t image_id);
 

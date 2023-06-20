@@ -93,6 +93,35 @@ std::array<cv::Mat, 2> StereoDataset::GetCameraIntrinsics() const
     return camera_intrinsics_;
 }
 
+std::size_t StereoDataset::GetImageWidth() const
+{
+    return image_width_;
+}
+
+std::size_t StereoDataset::GetImageHeight() const
+{
+    return image_height_;
+}
+
+cv::Size StereoDataset::GetImageSize() const
+{
+    return cv::Size(image_width_, image_height_);
+}
+
+std::size_t StereoDataset::GetMinDisparity() const
+{
+    return min_disparity_;
+}
+
+std::size_t StereoDataset::GetMaxDisparity() const
+{
+    return max_disparity_;
+}
+
+std::array<cv::Mat, 2> StereoDataset::GetDisparities() const
+{
+    return disparities_;
+}
 
 void StereoDataset::SetImages(std::size_t image_id)
 {

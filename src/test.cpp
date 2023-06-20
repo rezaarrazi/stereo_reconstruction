@@ -2,7 +2,7 @@
 #include "feature_extractor.h"
 #include "sparse_matcher.h"
 #include "camera_pose_estimator.h"
-
+#include "disparity.h"
 
 int main()
 {
@@ -32,8 +32,30 @@ int main()
     cv::Mat rotation = camera_pose_estimator.GetRotation();
     cv::Mat translation = camera_pose_estimator.GetTranslation();
 
+    //expected rotation and translation
+    rotation = (cv::Mat_<double>(3,3) << 9.99930076e-01, -1.93063070e-03,  1.16669094e-02,
+                                            1.93095338e-03,  9.99998136e-01, -1.63926538e-05,
+                                            -1.16668560e-02,  3.89197656e-05,  9.99931939e-01);
+    translation = (cv::Mat_<double>(3,1) << -0.99758425,
+                                            0.01570115,
+                                            -0.06766929);
+
     std::cout << rotation << '\n';
     std::cout << translation << '\n';
+
+    Disparity disparity(stereo_dataset, rotation, translation);
+    disparity.ComputeDisparity();
+
+    stereo_dataset.SetDisparities(0);
+
+    cv::Mat out1, out2;
+    cv::resize(disparity.GetDisparity(), out1, cv::Size(), 0.5, 0.5);
+    cv::imshow("disparity", out1);
+
+    cv::resize(stereo_dataset.GetDisparities()[0], out2, cv::Size(), 0.5, 0.5);
+    cv::imshow("disparity_gt", out2);
+
+    cv::waitKey(0);
 
     return 0;
 
