@@ -20,6 +20,7 @@ class SparseMatcher
         std::vector<cv::DMatch> matches_;
         std::array<std::vector<cv::Point2f>, 2> matched_points_;
         std::vector<cv::DMatch> selected_matches_;
+
         static bool CompareMatches(const cv::DMatch& match0, const cv::DMatch& match1);
 
     public:
