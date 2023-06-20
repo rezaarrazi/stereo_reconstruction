@@ -26,7 +26,11 @@ class FeatureExtractor
 
         const std::array<cv::Mat, 2>& GetFeatures() const;
 
+        std::size_t GetAverageKeypointNumber() const;
+
         void SetImages(const std::array<cv::Mat, 2>& images);
+
+        void ExtractFeatures(std::size_t type);
 
         void ExtractFeaturesORB();
 
