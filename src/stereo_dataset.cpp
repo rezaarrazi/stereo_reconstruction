@@ -1,7 +1,7 @@
 #include "stereo_dataset.h"
 
 
-void StereoDataset::ReadIntrinsics(const std::string& line, int camera_index)
+void StereoDataset::ReadIntrinsics(const std::string& line, std::size_t camera_index)
 {
 
     std::vector<std::size_t> positions;
@@ -67,12 +67,18 @@ StereoDataset::StereoDataset()
 
     std::sort(folder_names_.begin(), folder_names_.end());
 
-    image_pair_num_ = folder_names_.size();
+    image_pair_number_ = folder_names_.size();
 
     closedir(dir_ptr);
     dir_ptr = nullptr;
     dirent_ptr = nullptr;
 
+}
+
+
+std::size_t StereoDataset::GetImagePairNumber() const
+{
+    return image_pair_number_;
 }
 
 
@@ -88,11 +94,11 @@ std::array<cv::Mat, 2> StereoDataset::GetCameraIntrinsics() const
 }
 
 
-void StereoDataset::SetImages(int image_id)
+void StereoDataset::SetImages(std::size_t image_id)
 {
 
-    if (image_id < 0 || image_id >= image_pair_num_)
-        std::cout << "image_id should be >= 0 and < image_pair_num.\n";
+    if (image_id >= image_pair_number_)
+        std::cout << "image_id should be < image_pair_number.\n";
     else
     {
         std::string image_pair_path = DATA_PATH + "/" + folder_names_[image_id] + "/";
@@ -103,10 +109,10 @@ void StereoDataset::SetImages(int image_id)
 }
 
 
-void StereoDataset::SetDisparities(int image_id)
+void StereoDataset::SetDisparities(std::size_t image_id)
 {
-    if (image_id < 0 || image_id >= image_pair_num_)
-        std::cout << "image_id should be >= 0 and < image_pair_num.\n";
+    if (image_id >= image_pair_number_)
+        std::cout << "image_id should be < image_pair_number.\n";
     else
     {
         std::string disparity_pair_path = DATA_PATH + "/" + folder_names_[image_id] + "/";
@@ -125,11 +131,11 @@ void StereoDataset::SetDisparities(int image_id)
 }
 
 
-void StereoDataset::SetCalibrations(int image_id)
+void StereoDataset::SetCalibrations(std::size_t image_id)
 {
 
-    if (image_id < 0 || image_id >= image_pair_num_)
-        std::cout << "image_id should be >= 0 and < image_pair_num.\n";
+    if (image_id >= image_pair_number_)
+        std::cout << "image_id should be < image_pair_number.\n";
     else
     {
         std::string calibration_path = DATA_PATH + "/" + folder_names_[image_id] + "/calib.txt";
