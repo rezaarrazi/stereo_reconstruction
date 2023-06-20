@@ -1,3 +1,7 @@
+#ifndef _EXPERIMENT_DESIGNER
+#define _EXPERIMENT_DESIGNER
+
+
 #include "stereo_dataset.h"
 #include "feature_extractor.h"
 #include "sparse_matcher.h"
@@ -27,6 +31,9 @@ class ExperimentDesigner
         void CompareCameraPoseEstimation();
 
 };
+
+
+#endif
 
 
 
