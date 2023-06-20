@@ -15,21 +15,18 @@ class FeatureExtractor
 {
 
     private:
-        cv::Mat image0_;
-        cv::Mat image1_;
+        std::array<cv::Mat, 2> images_;
         std::array<std::vector<cv::KeyPoint>, 2> keypoints_;
         std::array<cv::Mat, 2> features_;
 
     public:
         FeatureExtractor() {}
 
-        FeatureExtractor(const cv::Mat& image0, const cv::Mat& image1): image0_(image0), image1_(image1) {}
-
         const std::array<std::vector<cv::KeyPoint>, 2>& GetKeypoints() const;
 
         const std::array<cv::Mat, 2>& GetFeatures() const;
 
-        void SetImagePair(const cv::Mat& image0, const cv::Mat& image1);
+        void SetImages(const std::array<cv::Mat, 2>& images);
 
         void ExtractFeaturesORB();
 
