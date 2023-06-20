@@ -13,6 +13,12 @@ SparseMatcher::SparseMatcher()
 }
 
 
+std::array<std::vector<cv::Point2f>, 2> SparseMatcher::GetMatchedPoints() const
+{
+    return matched_points_;
+}
+
+
 void SparseMatcher::SetMatchNum(std::size_t match_num)
 {
     match_num_ = match_num;
@@ -31,10 +37,10 @@ void SparseMatcher::MatchSparsely(const std::array<std::vector<cv::KeyPoint>, 2>
     for (std::size_t i = 0; i < match_num_; i++)
     {
         keypoint = keypoints[0][matches_[i].queryIdx];
-        matched_points0_.push_back(cv::Point2f(keypoint.pt.x, keypoint.pt.y));
+        matched_points_[0].push_back(cv::Point2f(keypoint.pt.x, keypoint.pt.y));
 
         keypoint = keypoints[1][matches_[i].trainIdx];
-        matched_points1_.push_back(cv::Point2f(keypoint.pt.x, keypoint.pt.y));
+        matched_points_[1].push_back(cv::Point2f(keypoint.pt.x, keypoint.pt.y));
 
         selected_matches_.push_back(matches_[i]);
     }
@@ -42,10 +48,10 @@ void SparseMatcher::MatchSparsely(const std::array<std::vector<cv::KeyPoint>, 2>
 }
 
 
-void SparseMatcher::DisplayMatchings(const cv::Mat& image0, const cv::Mat& image1, const std::array<std::vector<cv::KeyPoint>, 2>& keypoints)
+void SparseMatcher::DisplayMatchings(const std::array<cv::Mat, 2>& images, const std::array<std::vector<cv::KeyPoint>, 2>& keypoints)
 {
     cv::Mat matched_image;
-    cv::drawMatches(image0, keypoints[0], image1, keypoints[1], selected_matches_, matched_image);
+    cv::drawMatches(images[0], keypoints[0], images[1], keypoints[1], selected_matches_, matched_image);
     cv::imshow("matched image", matched_image);
     cv::waitKey(0);
 }
