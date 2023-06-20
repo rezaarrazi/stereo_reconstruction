@@ -13,6 +13,14 @@ const std::array<cv::Mat, 2>& FeatureExtractor::GetFeatures() const
 }
 
 
+std::size_t FeatureExtractor::GetAverageKeypointNumber() const
+{
+    std::size_t keypoint_number0 = keypoints_[0].size();
+    std::size_t keypoint_number1 = keypoints_[1].size();
+    return static_cast<std::size_t>((keypoint_number0 + keypoint_number1) / 2.0);
+}
+
+
 void FeatureExtractor::SetImages(const std::array<cv::Mat, 2>& images)
 {
     images_ = images;
