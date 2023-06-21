@@ -45,6 +45,15 @@ void FeatureExtractor::ExtractFeaturesSIFT()
     features_[1].convertTo(features_[1], CV_32F);
 }
 
+void FeatureExtractor::ExtractFeaturesSURF()
+{
+    cv::Ptr<cv::SURF> surf_extractor = cv::SURF::create();
+    surf_extractor->detectAndCompute(images_[0], cv::noArray(), keypoints_[0], features_[0]);
+    surf_extractor->detectAndCompute(images_[1], cv::noArray(), keypoints_[1], features_[1]);
+    features_[0].convertTo(features_[0], CV_32F);
+    features_[1].convertTo(features_[1], CV_32F);
+}
+
 
 
 
