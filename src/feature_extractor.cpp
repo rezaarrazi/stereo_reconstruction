@@ -36,7 +36,14 @@ void FeatureExtractor::ExtractFeaturesORB()
     features_[1].convertTo(features_[1], CV_32F);
 }
 
-
+void FeatureExtractor::ExtractFeaturesSIFT()
+{
+    cv::Ptr<cv::SIFT> sift_extractor = cv::SIFT::create();
+    sift_extractor->detectAndCompute(images_[0], cv::noArray(), keypoints_[0], features_[0]);
+    sift_extractor->detectAndCompute(images_[1], cv::noArray(), keypoints_[1], features_[1]);
+    features_[0].convertTo(features_[0], CV_32F);
+    features_[1].convertTo(features_[1], CV_32F);
+}
 
 
 
