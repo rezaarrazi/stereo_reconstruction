@@ -24,7 +24,7 @@ class StereoDataset
         std::size_t image_pair_number_ = 0;
 
         std::array<cv::Mat, 2> images_;
-        std::array<cv::Mat, 2> disparities_;
+        std::array<cv::Mat, 2> disparity_maps_;
 
         std::array<cv::Mat, 2> camera_intrinsics_ = {cv::Mat_<float>(3, 3, 0.0), cv::Mat_<float>(3, 3, 0.0)};
         float doffs_ = 0.0;
@@ -44,6 +44,8 @@ class StereoDataset
 
         std::array<cv::Mat, 2> GetImages() const;
 
+        std::array<cv::Mat, 2> GetDisparityMaps() const;
+
         std::array<cv::Mat, 2> GetCameraIntrinsics() const;
 
         std::size_t GetImageWidth() const;
@@ -53,11 +55,9 @@ class StereoDataset
         std::size_t GetMinDisparity() const;
         std::size_t GetMaxDisparity() const;
 
-        std::array<cv::Mat, 2> GetDisparities() const;
-
         void SetImages(std::size_t image_id);
 
-        void SetDisparities(std::size_t image_id);
+        void SetDisparityMaps(std::size_t image_id);
 
         void SetCalibrations(std::size_t image_id);
 
