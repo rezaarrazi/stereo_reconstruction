@@ -55,7 +55,7 @@ class StereoDataset
 
         std::array<cv::Mat, 2> GetDisparities() const;
 
-        void SetImages(int image_id);
+        void SetImages(std::size_t image_id);
 
         void SetDisparities(std::size_t image_id);
 
