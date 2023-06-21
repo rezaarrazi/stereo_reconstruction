@@ -6,8 +6,6 @@
 #include <vector>
 #include <array>
 #include <opencv2/core/core.hpp>
-#include <opencv2/imgcodecs/legacy/constants_c.h>
-#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
 
@@ -31,14 +29,6 @@ class FeatureExtractor
         void SetImages(const std::array<cv::Mat, 2>& images);
 
         void ExtractFeatures(std::size_t type);
-
-        void ExtractFeaturesORB();
-
-        void ExtractFeaturesSIFT();
-
-        void ExtractFeaturesSURF();
-
-        void ExtractFeaturesBRISK();
 
 };
 
