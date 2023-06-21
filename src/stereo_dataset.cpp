@@ -88,40 +88,47 @@ std::array<cv::Mat, 2> StereoDataset::GetImages() const
 }
 
 
+std::array<cv::Mat, 2> StereoDataset::GetDisparityMaps() const
+{
+    return disparity_maps_;
+}
+
+
 std::array<cv::Mat, 2> StereoDataset::GetCameraIntrinsics() const
 {
     return camera_intrinsics_;
 }
+
 
 std::size_t StereoDataset::GetImageWidth() const
 {
     return image_width_;
 }
 
+
 std::size_t StereoDataset::GetImageHeight() const
 {
     return image_height_;
 }
+
 
 cv::Size StereoDataset::GetImageSize() const
 {
     return cv::Size(image_width_, image_height_);
 }
 
+
 std::size_t StereoDataset::GetMinDisparity() const
 {
     return min_disparity_;
 }
+
 
 std::size_t StereoDataset::GetMaxDisparity() const
 {
     return max_disparity_;
 }
 
-std::array<cv::Mat, 2> StereoDataset::GetDisparities() const
-{
-    return disparities_;
-}
 
 void StereoDataset::SetImages(std::size_t image_id)
 {
@@ -138,24 +145,24 @@ void StereoDataset::SetImages(std::size_t image_id)
 }
 
 
-void StereoDataset::SetDisparities(std::size_t image_id)
+void StereoDataset::SetDisparityMaps(std::size_t image_id)
 {
     if (image_id >= image_pair_number_)
         std::cout << "image_id should be < image_pair_number.\n";
     else
     {
-        std::string disparity_pair_path = DATA_PATH + "/" + folder_names_[image_id] + "/";
-        // Read PFM file
-        disparities_[0] = cv::imread(disparity_pair_path + "disp0.pfm", cv::IMREAD_UNCHANGED);
-        disparities_[1] = cv::imread(disparity_pair_path + "disp1.pfm", cv::IMREAD_UNCHANGED);
+        std::string disparity_map_pair_path = DATA_PATH + "/" + folder_names_[image_id] + "/";
+        // read PFM file
+        disparity_maps_[0] = cv::imread(disparity_map_pair_path + "disp0.pfm", cv::IMREAD_UNCHANGED);
+        disparity_maps_[1] = cv::imread(disparity_map_pair_path + "disp1.pfm", cv::IMREAD_UNCHANGED);
 
-        // Handle infinite values
-        disparities_[0].setTo(0, disparities_[0] == std::numeric_limits<float>::infinity());
-        // Normalize and convert to uint8
-        cv::normalize(disparities_[0], disparities_[0], 0, 255, cv::NORM_MINMAX, CV_8U);
+        // handle infinite values
+        disparity_maps_[0].setTo(0, disparity_maps_[0] == std::numeric_limits<float>::infinity());
+        // normalize and convert to uint8
+        cv::normalize(disparity_maps_[0], disparity_maps_[0], 0, 255, cv::NORM_MINMAX, CV_8U);
 
-        disparities_[1].setTo(0, disparities_[1] == std::numeric_limits<float>::infinity());
-        cv::normalize(disparities_[1], disparities_[1], 0, 255, cv::NORM_MINMAX, CV_8U);
+        disparity_maps_[1].setTo(0, disparity_maps_[1] == std::numeric_limits<float>::infinity());
+        cv::normalize(disparity_maps_[1], disparity_maps_[1], 0, 255, cv::NORM_MINMAX, CV_8U);
     }
 }
 
