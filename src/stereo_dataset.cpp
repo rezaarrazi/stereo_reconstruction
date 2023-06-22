@@ -159,10 +159,10 @@ void StereoDataset::SetDisparityMaps(std::size_t image_id)
         // handle infinite values
         disparity_maps_[0].setTo(0, disparity_maps_[0] == std::numeric_limits<float>::infinity());
         // normalize and convert to uint8
-        cv::normalize(disparity_maps_[0], disparity_maps_[0], 0, 255, cv::NORM_MINMAX, CV_8U);
+        cv::normalize(disparity_maps_[0], disparity_maps_[0], min_disparity_, max_disparity_, cv::NORM_MINMAX, CV_8U);
 
         disparity_maps_[1].setTo(0, disparity_maps_[1] == std::numeric_limits<float>::infinity());
-        cv::normalize(disparity_maps_[1], disparity_maps_[1], 0, 255, cv::NORM_MINMAX, CV_8U);
+        cv::normalize(disparity_maps_[1], disparity_maps_[1], min_disparity_, max_disparity_, cv::NORM_MINMAX, CV_8U);
     }
 }
 
