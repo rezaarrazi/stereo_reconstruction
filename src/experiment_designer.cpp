@@ -70,7 +70,7 @@ void ExperimentDesigner::CompareCameraPoseEstimation()
         for (std::size_t j = 0; j < 4; j++)
         {
             feature_extractor_.ExtractFeatures(j);
-            sparse_matcher_.MatchSparsely(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures());
+            sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 300);
             camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
             camera_pose_estimator_.EstimateCameraPose();
             std::array<float, 2> rmse = ComputeRMSE(camera_pose_estimator_.GetRotation(), camera_pose_estimator_.GetTranslation());
