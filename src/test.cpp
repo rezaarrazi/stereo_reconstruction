@@ -18,7 +18,7 @@ int main()
 
     SparseMatcher sparse_matcher;
 
-    sparse_matcher.MatchSparsely(feature_extractor.GetKeypoints(), feature_extractor.GetFeatures());
+    sparse_matcher.MatchSparselyBFSortTop(feature_extractor.GetKeypoints(), feature_extractor.GetFeatures(), 300);
 
     // sparse_matcher.DisplayMatchings(stereo_dataset.GetImages(), feature_extractor.GetKeypoints());
 
@@ -34,26 +34,29 @@ int main()
     cv::Mat translation = camera_pose_estimator.GetTranslation();
 
     //expected rotation and translation
-    //rotation = (cv::Mat_<double>(3,3) << 9.99930076e-01, -1.93063070e-03,  1.16669094e-02,
-    //                                        1.93095338e-03,  9.99998136e-01, -1.63926538e-05,
-    //                                        -1.16668560e-02,  3.89197656e-05,  9.99931939e-01);
-    //translation = (cv::Mat_<double>(3,1) << -0.99758425,
-    //                                        0.01570115,
-    //                                        -0.06766929);
+    rotation = (cv::Mat_<double>(3,3) << 9.99930076e-01, -1.93063070e-03,  1.16669094e-02,
+                                           1.93095338e-03,  9.99998136e-01, -1.63926538e-05,
+                                           -1.16668560e-02,  3.89197656e-05,  9.99931939e-01);
+    translation = (cv::Mat_<double>(3,1) << -0.99758425,
+                                           0.01570115,
+                                           -0.06766929);
 
     std::cout << rotation << '\n';
     std::cout << translation << '\n';
 
     DenseMatcher dense_matcher;
-    dense_matcher.ComputeDisparityMap(stereo_dataset, rotation, translation);
+    dense_matcher.RectifyImages(stereo_dataset, rotation, translation);
+    dense_matcher.ComputeDisparityMap(stereo_dataset, rotation, translation, 1);
 
     stereo_dataset.SetDisparityMaps(0);
 
     cv::Mat out1, out2;
-    cv::resize(dense_matcher.GetDisparityMap(), out1, cv::Size(), 0.5, 0.5);
+    cv::resize(dense_matcher.GetColorfulDisparityMap(), out1, cv::Size(), 0.5, 0.5);
     cv::imshow("disparity", out1);
 
-    cv::resize(stereo_dataset.GetDisparityMaps()[0], out2, cv::Size(), 0.5, 0.5);
+    cv::Mat colorful_disparity_map_gt;
+    cv::applyColorMap(stereo_dataset.GetDisparityMaps()[0], colorful_disparity_map_gt, cv::COLORMAP_JET);
+    cv::resize(colorful_disparity_map_gt, out2, cv::Size(), 0.5, 0.5);
     cv::imshow("disparity_gt", out2);
 
     cv::waitKey(0);
