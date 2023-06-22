@@ -14,8 +14,8 @@ class SparseMatcher
 {
 
     private:
-        std::size_t match_num_ = 300;
-        cv::Ptr<cv::DescriptorMatcher> feature_matcher_;
+        cv::Ptr<cv::DescriptorMatcher> bf_matcher_;
+        cv::Ptr<cv::DescriptorMatcher> flann_based_matcher_;
         std::vector<cv::DMatch> matches_;
         std::array<std::vector<cv::Point2f>, 2> matched_points_;
         std::vector<cv::DMatch> selected_matches_;
@@ -27,9 +27,14 @@ class SparseMatcher
 
         std::array<std::vector<cv::Point2f>, 2> GetMatchedPoints() const;
 
-        void SetMatchNum(std::size_t match_num);
+        void MatchSparselyBFSortTop(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints, const std::array<cv::Mat, 2>& features,
+                                    std::size_t keypoint_number);
 
-        void MatchSparsely(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints, const std::array<cv::Mat, 2>& features);
+        void MatchSparselyBFMinDistance(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints, const std::array<cv::Mat, 2>& features,
+                                        float distance_ratio);
+        
+        void MatchSparselyFLANNBased(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints, const std::array<cv::Mat, 2>& features,
+                                     float ratio);
 
         void DisplayMatchings(const std::array<cv::Mat, 2>& images, const std::array<std::vector<cv::KeyPoint>, 2>& keypoints);
 
