@@ -31,12 +31,13 @@ class SparseMatcher
                                     std::size_t keypoint_number);
 
         void MatchSparselyBFMinDistance(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints, const std::array<cv::Mat, 2>& features,
-                                        float distance_ratio);
+                                        double distance_ratio);
         
         void MatchSparselyFLANNBased(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints, const std::array<cv::Mat, 2>& features,
-                                     float ratio);
+                                     double ratio);
 
-        void DisplayMatchings(const std::array<cv::Mat, 2>& images, const std::array<std::vector<cv::KeyPoint>, 2>& keypoints);
+        void DisplayMatchings(const std::array<cv::Mat, 2>& images, const std::array<std::vector<cv::KeyPoint>, 2>& keypoints,
+                              bool save_matched_images);
 
 };
 
