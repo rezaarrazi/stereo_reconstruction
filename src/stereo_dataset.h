@@ -26,9 +26,9 @@ class StereoDataset
         std::array<cv::Mat, 2> images_;
         std::array<cv::Mat, 2> disparity_maps_;
 
-        std::array<cv::Mat, 2> camera_intrinsics_ = {cv::Mat_<float>(3, 3, 0.0), cv::Mat_<float>(3, 3, 0.0)};
-        float doffs_ = 0.0;
-        float baseline_ = 0.0;
+        std::array<cv::Mat, 2> camera_intrinsics_ = {cv::Mat_<double>(3, 3, 0.0), cv::Mat_<double>(3, 3, 0.0)};
+        double doffs_ = 0.0;
+        double baseline_ = 0.0;
         std::size_t image_width_ = 0;
         std::size_t image_height_ = 0;
         std::size_t disparity_num_ = 0;
