@@ -45,7 +45,7 @@ void SparseMatcher::MatchSparselyBFSortTop(const std::array<std::vector<cv::KeyP
 
 
 void SparseMatcher::MatchSparselyBFMinDistance(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints,
-                                               const std::array<cv::Mat, 2>& features, float distance_ratio)
+                                               const std::array<cv::Mat, 2>& features, double distance_ratio)
 {
 
     bf_matcher_->match(features[0], features[1], matches_);
@@ -56,8 +56,9 @@ void SparseMatcher::MatchSparselyBFMinDistance(const std::array<std::vector<cv::
 
     for (std::size_t i = 0; i < matches_.size(); i++)
     {
+
         if (matches_[i].distance >= distance_ratio * matches_[0].distance)
-            break;
+            continue;
 
         keypoint = keypoints[0][matches_[i].queryIdx];
         matched_points_[0].push_back(cv::Point2f(keypoint.pt.x, keypoint.pt.y));
@@ -71,7 +72,8 @@ void SparseMatcher::MatchSparselyBFMinDistance(const std::array<std::vector<cv::
 }
 
 
-void SparseMatcher::MatchSparselyFLANNBased(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints, const std::array<cv::Mat, 2>& features, float ratio)
+void SparseMatcher::MatchSparselyFLANNBased(const std::array<std::vector<cv::KeyPoint>, 2>& keypoints,
+                                            const std::array<cv::Mat, 2>& features, double ratio)
 {
 
     std::vector<std::vector<cv::DMatch>> flann_based_matches;
@@ -98,12 +100,19 @@ void SparseMatcher::MatchSparselyFLANNBased(const std::array<std::vector<cv::Key
 }
 
 
-void SparseMatcher::DisplayMatchings(const std::array<cv::Mat, 2>& images, const std::array<std::vector<cv::KeyPoint>, 2>& keypoints)
+void SparseMatcher::DisplayMatchings(const std::array<cv::Mat, 2>& images, const std::array<std::vector<cv::KeyPoint>, 2>& keypoints,
+                                     bool save_matched_images)
 {
-    cv::Mat matched_image;
-    cv::drawMatches(images[0], keypoints[0], images[1], keypoints[1], selected_matches_, matched_image);
-    cv::imshow("matched image", matched_image);
+
+    cv::Mat matched_images;
+    cv::drawMatches(images[0], keypoints[0], images[1], keypoints[1], selected_matches_, matched_images);
+    cv::imshow("matched images", matched_images);
+
+    if (save_matched_images == true)
+        cv::imwrite("../matched_images.png", matched_images);
+
     cv::waitKey(0);
+
 }
 
 
