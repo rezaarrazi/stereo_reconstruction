@@ -18,9 +18,9 @@ int main()
 
     SparseMatcher sparse_matcher;
 
-    sparse_matcher.MatchSparselyBFSortTop(feature_extractor.GetKeypoints(), feature_extractor.GetFeatures(), 300);
+    sparse_matcher.MatchSparselyBFSortTop(feature_extractor.GetKeypoints(), feature_extractor.GetFeatures(), 50);
 
-    // sparse_matcher.DisplayMatchings(stereo_dataset.GetImages(), feature_extractor.GetKeypoints());
+    sparse_matcher.DisplayMatchings(stereo_dataset.GetImages(), feature_extractor.GetKeypoints(), true);
 
     stereo_dataset.SetCalibrations(0);
 
@@ -34,12 +34,12 @@ int main()
     cv::Mat translation = camera_pose_estimator.GetTranslation();
 
     //expected rotation and translation
-    rotation = (cv::Mat_<double>(3,3) << 9.99930076e-01, -1.93063070e-03,  1.16669094e-02,
-                                           1.93095338e-03,  9.99998136e-01, -1.63926538e-05,
-                                           -1.16668560e-02,  3.89197656e-05,  9.99931939e-01);
-    translation = (cv::Mat_<double>(3,1) << -0.99758425,
-                                           0.01570115,
-                                           -0.06766929);
+    // rotation = (cv::Mat_<double>(3,3) << 9.99930076e-01, -1.93063070e-03,  1.16669094e-02,
+    //                                        1.93095338e-03,  9.99998136e-01, -1.63926538e-05,
+    //                                        -1.16668560e-02,  3.89197656e-05,  9.99931939e-01);
+    // translation = (cv::Mat_<double>(3,1) << -0.99758425,
+    //                                        0.01570115,
+    //                                        -0.06766929);
 
     std::cout << rotation << '\n';
     std::cout << translation << '\n';
