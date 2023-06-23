@@ -8,7 +8,7 @@ void StereoDataset::ReadIntrinsics(const std::string& line, std::size_t camera_i
     std::size_t left_position = 0;
     std::size_t right_position = 0;
 
-    std::vector<float> intrinsics;
+    std::vector<double> intrinsics;
 
     for (std::size_t i = 0; i < line.length(); i++)
     {
@@ -34,7 +34,7 @@ void StereoDataset::ReadIntrinsics(const std::string& line, std::size_t camera_i
 
     for (std::size_t i = 0; i < 3; i++)
         for (std::size_t j = 0; j < 3; j++)
-            camera_intrinsics_[camera_index].at<float>(i, j) = intrinsics[i * 3 + j];
+            camera_intrinsics_[camera_index].at<double>(i, j) = intrinsics[i * 3 + j];
         
 }
 
@@ -157,11 +157,11 @@ void StereoDataset::SetDisparityMaps(std::size_t image_id)
         disparity_maps_[1] = cv::imread(disparity_map_pair_path + "disp1.pfm", cv::IMREAD_UNCHANGED);
 
         // handle infinite values
-        disparity_maps_[0].setTo(0, disparity_maps_[0] == std::numeric_limits<float>::infinity());
+        disparity_maps_[0].setTo(0, disparity_maps_[0] == std::numeric_limits<double>::infinity());
         // normalize and convert to uint8
         cv::normalize(disparity_maps_[0], disparity_maps_[0], min_disparity_, max_disparity_, cv::NORM_MINMAX, CV_8U);
 
-        disparity_maps_[1].setTo(0, disparity_maps_[1] == std::numeric_limits<float>::infinity());
+        disparity_maps_[1].setTo(0, disparity_maps_[1] == std::numeric_limits<double>::infinity());
         cv::normalize(disparity_maps_[1], disparity_maps_[1], min_disparity_, max_disparity_, cv::NORM_MINMAX, CV_8U);
     }
 }
