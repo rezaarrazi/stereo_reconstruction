@@ -45,7 +45,7 @@ StereoDataset::StereoDataset()
     DIR* dir_ptr = nullptr;
     struct dirent* dirent_ptr = nullptr;
 
-    dir_ptr = opendir(DATA_PATH.c_str());
+    dir_ptr = opendir(DATA_PATH_.c_str());
 
     dirent_ptr = readdir(dir_ptr);
     char* folder_name = nullptr;
@@ -137,7 +137,7 @@ void StereoDataset::SetImages(std::size_t image_id)
         std::cout << "image_id should be < image_pair_number.\n";
     else
     {
-        std::string image_pair_path = DATA_PATH + "/" + folder_names_[image_id] + "/";
+        std::string image_pair_path = DATA_PATH_ + "/" + folder_names_[image_id] + "/";
         images_[0] = cv::imread(image_pair_path + "im0.png", CV_LOAD_IMAGE_COLOR);
         images_[1] = cv::imread(image_pair_path + "im1.png", CV_LOAD_IMAGE_COLOR);
     }
@@ -151,7 +151,7 @@ void StereoDataset::SetDisparityMaps(std::size_t image_id)
         std::cout << "image_id should be < image_pair_number.\n";
     else
     {
-        std::string disparity_map_pair_path = DATA_PATH + "/" + folder_names_[image_id] + "/";
+        std::string disparity_map_pair_path = DATA_PATH_ + "/" + folder_names_[image_id] + "/";
         // read PFM file
         disparity_maps_[0] = cv::imread(disparity_map_pair_path + "disp0.pfm", cv::IMREAD_UNCHANGED);
         disparity_maps_[1] = cv::imread(disparity_map_pair_path + "disp1.pfm", cv::IMREAD_UNCHANGED);
@@ -174,7 +174,7 @@ void StereoDataset::SetCalibrations(std::size_t image_id)
         std::cout << "image_id should be < image_pair_number.\n";
     else
     {
-        std::string calibration_path = DATA_PATH + "/" + folder_names_[image_id] + "/calib.txt";
+        std::string calibration_path = DATA_PATH_ + "/" + folder_names_[image_id] + "/calib.txt";
         std::ifstream calibration_file(calibration_path);
         std::string line = "";
 
