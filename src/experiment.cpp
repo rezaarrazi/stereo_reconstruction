@@ -14,7 +14,9 @@ int main()
     //     std::cout << "\n\n";
     // }
 
-    experiment_designer.CompareCameraPoseEstimation();
+    // experiment_designer.CompareCameraPoseEstimation();
+
+    experiment_designer.CompareDisparityMaps();
 
     return 0;
 
