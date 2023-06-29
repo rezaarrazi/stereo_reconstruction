@@ -2,6 +2,7 @@
 #define _CAMERA_POSE_ESTIMATOR
 
 
+#include <iostream>
 #include <array>
 #include <vector>
 #include <opencv2/core/core.hpp>
@@ -29,7 +30,7 @@ class CameraPoseEstimator
 
         void SetMatchedPoints(const std::array<std::vector<cv::Point2f>, 2>& matched_points);
 
-        void EstimateCameraPose();
+        void EstimateCameraPose(std::size_t type);
 
 };
 
