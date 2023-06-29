@@ -28,7 +28,7 @@ int main()
     camera_pose_estimator.SetCameraIntrinsics(stereo_dataset.GetCameraIntrinsics());
     camera_pose_estimator.SetMatchedPoints(sparse_matcher.GetMatchedPoints());
 
-    camera_pose_estimator.EstimateCameraPose();
+    camera_pose_estimator.EstimateCameraPose(3);
 
     cv::Mat rotation = camera_pose_estimator.GetRotation();
     cv::Mat translation = camera_pose_estimator.GetTranslation();
