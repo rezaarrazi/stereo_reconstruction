@@ -98,7 +98,11 @@ void DenseMatcher::ComputeDisparityMap(const StereoDataset& stereo_dataset, cons
         bm->setPreFilterCap(PRE_FILTER_CAP_);
         bm->setUniquenessRatio(UNIQUENESS_RATIO_);
 
-        bm->compute(rectified_images_[0], rectified_images_[1], disparity_map_);
+        std::array<cv::Mat, 2> grayscale_images;
+        cv::cvtColor(rectified_images_[0], grayscale_images[0], CV_BGR2GRAY);
+        cv::cvtColor(rectified_images_[1], grayscale_images[1], CV_BGR2GRAY);
+
+        bm->compute(grayscale_images[0], grayscale_images[1], disparity_map_);
 
         disparity_map_.convertTo(disparity_map_, CV_8U, 1.0 / 16.0);
 
