@@ -103,20 +103,21 @@ void DenseMatcher::ComputeDisparityMap(const StereoDataset& stereo_dataset, cons
 
     if (type == 0)
     {
-        cv::Ptr<cv::StereoBM> bm = cv::StereoBM::create(bm_disparity_number_, bm_block_size_);
-        bm->setPreFilterCap(pre_filter_cap_);
-        bm->setUniquenessRatio(uniqueness_ratio_);
+        cv::Ptr<cv::StereoBM> bm = cv::StereoBM::create(BM_DISPARITY_NUMBER_, BM_BLOCK_SIZE_);
+        bm->setPreFilterCap(PRE_FILTER_CAP_);
+        bm->setUniquenessRatio(UNIQUENESS_RATIO_);
         bm->compute(rectified_images_[0], rectified_images_[1], disparity_map_);
         // disparity_map_.convertTo(disparity_map_, CV_8U, 255.0 / (16.0 * bm_disparity_number_));
         disparity_map_.convertTo(disparity_map_, CV_8U, 1.0 / 16.0);
+        cv::applyColorMap(disparity_map_, colorful_disparity_map_, cv::COLORMAP_JET);
     }
     else if (type == 1)
     {
-        int sgbm_p1 = 8 * 3 * sgbm_block_size_ * sgbm_block_size_;
-        int sgbm_p2 = 32 * 3 * sgbm_block_size_ * sgbm_block_size_;
-        cv::Ptr<cv::StereoSGBM> sgbm = cv::StereoSGBM::create(sgbm_min_disparity_, sgbm_disparity_number_, sgbm_block_size_,
-                                                              sgbm_p1, sgbm_p2, sgbm_disp12_max_diff_, pre_filter_cap_,
-                                                              uniqueness_ratio_, sgbm_speckle_window_size_, sgbm_speckle_range_);
+        int sgbm_p1 = 8 * 3 * SGBM_BLOCK_SIZE_ * SGBM_BLOCK_SIZE_;
+        int sgbm_p2 = 32 * 3 * SGBM_BLOCK_SIZE_ * SGBM_BLOCK_SIZE_;
+        cv::Ptr<cv::StereoSGBM> sgbm = cv::StereoSGBM::create(SGBM_MIN_DISPARITY_, SGBM_DISPARITY_NUMBER_, SGBM_BLOCK_SIZE_,
+                                                              sgbm_p1, sgbm_p2, SGBM_DISP12_MAX_DIFF_, PRE_FILTER_CAP_,
+                                                              UNIQUENESS_RATIO_, SGBM_SPECKLE_WINDOW_SIZE_, SGBM_SPECKLE_RANGE_);
         sgbm->setMode(cv::StereoSGBM::MODE_SGBM);
 
         // cv::Ptr<cv::StereoMatcher> sgbm1 = cv::ximgproc::createRightMatcher(sgbm);
@@ -130,8 +131,9 @@ void DenseMatcher::ComputeDisparityMap(const StereoDataset& stereo_dataset, cons
 
         sgbm->compute(rectified_images_[0], rectified_images_[1], disparity_map_);
         disparity_map_.convertTo(disparity_map_, CV_8U, 1.0 / 16.0);
+
         // FillHolesMaximum(stereo_dataset, 5);
-        FillHolesAverage(stereo_dataset, 10);
+        // FillHolesAverage(stereo_dataset, 10);
         
 
         // cv::Mat disparity_map1;
@@ -149,20 +151,9 @@ void DenseMatcher::ComputeDisparityMap(const StereoDataset& stereo_dataset, cons
 
         cv::applyColorMap(disparity_map_, colorful_disparity_map_, cv::COLORMAP_JET);
 
-
-
-
-        
-
-
-
-        
-
-        
     }
     else
         std::cout << "type should be >= 0 and < 2.\n";
-
     
 }
 
