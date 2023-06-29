@@ -7,6 +7,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/ximgproc/disparity_filter.hpp>
+#include <opencv2/imgproc/types_c.h>
 #include "stereo_dataset.h"
 
 
