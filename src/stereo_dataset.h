@@ -19,7 +19,7 @@ class StereoDataset
 {
 
     private:
-        const std::string DATA_PATH = "../Data/Middlebury";
+        const std::string DATA_PATH_ = "../Data/Middlebury";
         std::vector<std::string> folder_names_;
         std::size_t image_pair_number_ = 0;
 
