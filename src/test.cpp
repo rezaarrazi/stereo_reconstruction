@@ -3,7 +3,7 @@
 #include "sparse_matcher.h"
 #include "camera_pose_estimator.h"
 #include "dense_matcher.h"
-
+#include "superglue.h"
 
 int main()
 {
@@ -19,6 +19,9 @@ int main()
     SparseMatcher sparse_matcher;
 
     sparse_matcher.MatchSparselyBFSortTop(feature_extractor.GetKeypoints(), feature_extractor.GetFeatures(), 50);
+    
+    SuperGlue superglue("./superglue/SuperPoint.zip", "./superglue/SuperGlue.zip");
+    superglue.run("../Data/Middlebury/chess1/im0.png", "../Data/Middlebury/chess1/im1.png", 640, true);
 
     // sparse_matcher.DisplayMatchings(stereo_dataset.GetImages(), feature_extractor.GetKeypoints(), true);
 
