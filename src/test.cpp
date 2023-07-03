@@ -29,7 +29,7 @@ int main()
 
     CameraPoseEstimator camera_pose_estimator;
     camera_pose_estimator.SetCameraIntrinsics(stereo_dataset.GetCameraIntrinsics());
-    camera_pose_estimator.SetMatchedPoints(sparse_matcher.GetMatchedPoints());
+    camera_pose_estimator.SetMatchedPoints(superglue.GetMatchedPoints());
 
     camera_pose_estimator.EstimateCameraPose(3);
 
