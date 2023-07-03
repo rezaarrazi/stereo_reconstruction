@@ -17,7 +17,7 @@ The dataset used in the project is the [Middlebury Stereo Datasets](https://visi
 * Google Log (glog)
 * Ceres Solver
 * g2o 
-* [libtorch] (https://pytorch.org/cppdocs/installing.html)
+* [libtorch](https://pytorch.org/cppdocs/installing.html)
 
 ## Building the Project
 
