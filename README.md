@@ -17,12 +17,14 @@ The dataset used in the project is the [Middlebury Stereo Datasets](https://visi
 * Google Log (glog)
 * Ceres Solver
 * g2o 
+* [libtorch](https://pytorch.org/cppdocs/installing.html)
 
 ## Building the Project
 
 1. Clone the repository to your local machine.
+2. [*Installing C++ Distributions of PyTorch*](https://pytorch.org/cppdocs/installing.html) for `libtorch` setup.
 2. Inside the project directory, create a new directory called `build`.
-3. Inside the `build` directory, run `cmake ..` to generate the Makefile.
+3. Inside the `build` directory, run `cmake .. -DCMAKE_PREFIX_PATH=<libtorch path>` to generate the Makefile.
 4. Run `make` to compile the project.
 
 ## Running the Application
