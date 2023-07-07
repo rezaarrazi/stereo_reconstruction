@@ -5,6 +5,7 @@
 #include "dense_matcher.h"
 #include "superglue.h"
 
+
 int main()
 {
 
@@ -48,18 +49,20 @@ int main()
     std::cout << translation << '\n';
 
     DenseMatcher dense_matcher;
-    dense_matcher.RectifyImages(stereo_dataset, rotation, translation);
-    dense_matcher.ComputeDisparityMap(stereo_dataset, rotation, translation, 1);
+    dense_matcher.LoadData(stereo_dataset, rotation, translation);
+    dense_matcher.RectifyImages();
+    dense_matcher.ComputeDisparityMap(1);
 
     stereo_dataset.SetDisparityMaps(0);
 
-    cv::Mat out1, out2;
+    cv::Mat out1;
+    cv::Mat out2;
+
     cv::resize(dense_matcher.GetColorfulDisparityMap(), out1, cv::Size(), 0.5, 0.5);
     cv::imshow("disparity", out1);
 
-    cv::Mat colorful_disparity_map_gt;
-    cv::applyColorMap(stereo_dataset.GetDisparityMaps()[0], colorful_disparity_map_gt, cv::COLORMAP_JET);
-    cv::resize(colorful_disparity_map_gt, out2, cv::Size(), 0.5, 0.5);
+    cv::applyColorMap(stereo_dataset.GetDisparityMaps()[0], out2, cv::COLORMAP_JET);
+    cv::resize(out2, out2, cv::Size(), 0.5, 0.5);
     cv::imshow("disparity_gt", out2);
 
     cv::waitKey(0);
