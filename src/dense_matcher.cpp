@@ -1,11 +1,11 @@
 #include "dense_matcher.h"
 
 
-void DenseMatcher::FillHoles(const StereoDataset& stereo_dataset, std::size_t window_size, std::size_t type)
+void DenseMatcher::FillHoles(std::size_t type, std::size_t window_size)
 {
 
-    std::size_t image_height = stereo_dataset.GetImageHeight();
-    std::size_t image_width = stereo_dataset.GetImageWidth();
+    std::size_t image_height = disparity_map_.rows;
+    std::size_t image_width = disparity_map_.cols;
 
     uchar maximum_value = 0;
     std::size_t value = 0;
@@ -130,6 +130,8 @@ void DenseMatcher::ComputeDisparityMap(std::size_t type)
 
         sgbm->compute(rectified_images_[0], rectified_images_[1], disparity_map_);
         disparity_map_.convertTo(disparity_map_, CV_8U, 1.0 / 16.0);
+
+        FillHoles(1, 15);
 
         // FillHoles(stereo_dataset, 5, 0);
         // FillHoles(stereo_dataset, 10, 1);
