@@ -13,13 +13,14 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgcodecs/legacy/constants_c.h>
 #include <opencv2/highgui/highgui.hpp>
+#include "PFMReadWrite.h"
 
 
 class StereoDataset
 {
 
     private:
-        const std::string DATA_PATH_ = "../Data/Middlebury";
+        std::string data_path_ = "../Data/Middlebury";
         std::vector<std::string> folder_names_;
         std::size_t image_pair_number_ = 0;
 
@@ -27,6 +28,7 @@ class StereoDataset
         std::array<cv::Mat, 2> disparity_maps_;
 
         std::array<cv::Mat, 2> camera_intrinsics_ = {cv::Mat_<double>(3, 3, 0.0), cv::Mat_<double>(3, 3, 0.0)};
+
         double doffs_ = 0.0;
         double baseline_ = 0.0;
         std::size_t image_width_ = 0;
@@ -38,21 +40,24 @@ class StereoDataset
         void ReadIntrinsics(const std::string& line, std::size_t camera_index);
 
     public:
-        StereoDataset();
+        StereoDataset(const std::string& data_path = "../Data/Middlebury");
 
         std::size_t GetImagePairNumber() const;
 
         std::array<cv::Mat, 2> GetImages() const;
+
+        cv::Size GetImageSize() const;
 
         std::array<cv::Mat, 2> GetDisparityMaps() const;
 
         std::array<cv::Mat, 2> GetCameraIntrinsics() const;
 
         std::size_t GetImageWidth() const;
+
         std::size_t GetImageHeight() const;
-        cv::Size GetImageSize() const;
 
         std::size_t GetMinDisparity() const;
+
         std::size_t GetMaxDisparity() const;
 
         void SetImages(std::size_t image_id);
