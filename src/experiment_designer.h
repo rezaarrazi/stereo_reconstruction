@@ -26,8 +26,13 @@ class ExperimentDesigner
         std::array<std::string, 3> SPARSE_MATCHER_NAMES_ = {"BFSortTop", "BFMinDistance", "FLANNBased"};
         std::array<std::string, 4> CAMERA_POSE_ESTIMATOR_NAMES_ = {"Five-Point Algorithm 1", "Seven-Point Algorithm",
                                                                    "Eight-Point Algorithm", "Five-Point Algorithm 2"};
+        std::array<std::string, 2> DENSE_MATCHER_NAMES_ = {"StereoBM", "StereoSGBM"};
 
         std::array<double, 2> ComputeRMSE(const cv::Mat& rotation, const cv::Mat& translation) const;
+
+        double ComputePixelRatio(const cv::Mat& disparity_map, const cv::Mat& disparity_map_gt, double delta_d) const;
+        double ComputeAverageError(const cv::Mat& disparity_map, const cv::Mat& disparity_map_gt) const;
+        double ComputeDisparityMapRMSE(const cv::Mat& disparity_map, const cv::Mat& disparity_map_gt) const;
 
     public:
         ExperimentDesigner() {}
@@ -39,7 +44,9 @@ class ExperimentDesigner
         
         void CompareCameraPoseEstimation();
 
-        void CompareDisparityMaps();
+        void PrintDisparityMaps(std::size_t index);
+
+        void CompareDisparityMaps(std::size_t feature_extractor_type, std::size_t sparse_matcher_type, std::size_t dense_matcher_type);
 
 };
 
