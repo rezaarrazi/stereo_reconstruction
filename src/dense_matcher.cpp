@@ -131,7 +131,7 @@ void DenseMatcher::ComputeDisparityMap(std::size_t type)
         sgbm->compute(rectified_images_[0], rectified_images_[1], disparity_map_);
         disparity_map_.convertTo(disparity_map_, CV_8U, 1.0 / 16.0);
 
-        FillHoles(1, 15);
+        // FillHoles(1, 15);
 
         // FillHoles(stereo_dataset, 5, 0);
         // FillHoles(stereo_dataset, 10, 1);
