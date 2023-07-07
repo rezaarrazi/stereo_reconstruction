@@ -39,13 +39,15 @@ void StereoDataset::ReadIntrinsics(const std::string& line, std::size_t camera_i
 }
 
 
-StereoDataset::StereoDataset()
+StereoDataset::StereoDataset(const std::string& data_path)
 {
+
+    data_path_ = data_path;
 
     DIR* dir_ptr = nullptr;
     struct dirent* dirent_ptr = nullptr;
 
-    dir_ptr = opendir(DATA_PATH_.c_str());
+    dir_ptr = opendir(data_path_.c_str());
 
     dirent_ptr = readdir(dir_ptr);
     char* folder_name = nullptr;
@@ -88,6 +90,12 @@ std::array<cv::Mat, 2> StereoDataset::GetImages() const
 }
 
 
+cv::Size StereoDataset::GetImageSize() const
+{
+    return cv::Size(image_width_, image_height_);
+}
+
+
 std::array<cv::Mat, 2> StereoDataset::GetDisparityMaps() const
 {
     return disparity_maps_;
@@ -112,12 +120,6 @@ std::size_t StereoDataset::GetImageHeight() const
 }
 
 
-cv::Size StereoDataset::GetImageSize() const
-{
-    return cv::Size(image_width_, image_height_);
-}
-
-
 std::size_t StereoDataset::GetMinDisparity() const
 {
     return min_disparity_;
@@ -137,7 +139,7 @@ void StereoDataset::SetImages(std::size_t image_id)
         std::cout << "image_id should be < image_pair_number.\n";
     else
     {
-        std::string image_pair_path = DATA_PATH_ + "/" + folder_names_[image_id] + "/";
+        std::string image_pair_path = data_path_ + "/" + folder_names_[image_id] + "/";
         images_[0] = cv::imread(image_pair_path + "im0.png", CV_LOAD_IMAGE_COLOR);
         images_[1] = cv::imread(image_pair_path + "im1.png", CV_LOAD_IMAGE_COLOR);
     }
@@ -151,18 +153,40 @@ void StereoDataset::SetDisparityMaps(std::size_t image_id)
         std::cout << "image_id should be < image_pair_number.\n";
     else
     {
-        std::string disparity_map_pair_path = DATA_PATH_ + "/" + folder_names_[image_id] + "/";
+        std::string image_type = "";
+        std::size_t image_w = 0;
+        std::size_t image_h = 0;
+        double scale = 0.0;
         // read PFM file
-        disparity_maps_[0] = cv::imread(disparity_map_pair_path + "disp0.pfm", cv::IMREAD_UNCHANGED);
-        disparity_maps_[1] = cv::imread(disparity_map_pair_path + "disp1.pfm", cv::IMREAD_UNCHANGED);
+        std::string disparity_map_pair_path = data_path_ + "/" + folder_names_[image_id] + "/";
 
+        std::fstream file0((disparity_map_pair_path + "disp0.pfm").c_str(), std::ios::in | std::ios::binary);
+        file0 >> image_type;
+        file0 >> image_w;
+        file0 >> image_h;
+        file0 >> scale;
+        file0.close();
+
+        disparity_maps_[0] = loadPFM(disparity_map_pair_path + "disp0.pfm");
         // handle infinite values
         disparity_maps_[0].setTo(0, disparity_maps_[0] == std::numeric_limits<double>::infinity());
+        disparity_maps_[0].convertTo(disparity_maps_[0], CV_8U);
+        // disparity_maps_[0] = disparity_maps_[0] * abs(scale);
         // normalize and convert to uint8
-        cv::normalize(disparity_maps_[0], disparity_maps_[0], min_disparity_, max_disparity_, cv::NORM_MINMAX, CV_8U);
+        // cv::normalize(disparity_maps_[0], disparity_maps_[0], 0, 255, cv::NORM_MINMAX, CV_8U);
 
+        std::fstream file1((disparity_map_pair_path + "disp1.pfm").c_str(), std::ios::in | std::ios::binary);
+        file1 >> image_type;
+        file1 >> image_w;
+        file1 >> image_h;
+        file1 >> scale;
+        file1.close();
+
+        disparity_maps_[1] = loadPFM(disparity_map_pair_path + "disp1.pfm");
         disparity_maps_[1].setTo(0, disparity_maps_[1] == std::numeric_limits<double>::infinity());
-        cv::normalize(disparity_maps_[1], disparity_maps_[1], min_disparity_, max_disparity_, cv::NORM_MINMAX, CV_8U);
+        disparity_maps_[1].convertTo(disparity_maps_[1], CV_8U);
+        // disparity_maps_[1] = disparity_maps_[1] * abs(scale);
+        // cv::normalize(disparity_maps_[1], disparity_maps_[1], 0, 255, cv::NORM_MINMAX, CV_8U);
     }
 }
 
@@ -174,7 +198,7 @@ void StereoDataset::SetCalibrations(std::size_t image_id)
         std::cout << "image_id should be < image_pair_number.\n";
     else
     {
-        std::string calibration_path = DATA_PATH_ + "/" + folder_names_[image_id] + "/calib.txt";
+        std::string calibration_path = data_path_ + "/" + folder_names_[image_id] + "/calib.txt";
         std::ifstream calibration_file(calibration_path);
         std::string line = "";
 
