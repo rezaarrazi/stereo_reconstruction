@@ -18,18 +18,22 @@ include_directories(${OpenCV_INCLUDE_DIRS}
                    )
 
 set(TEST src/stereo_dataset.h src/stereo_dataset.cpp
+         src/PFMReadWrite.h src/PFMReadWrite.cpp
          src/feature_extractor.h src/feature_extractor.cpp
          src/sparse_matcher.h src/sparse_matcher.cpp
          src/camera_pose_estimator.h src/camera_pose_estimator.cpp
          src/dense_matcher.h src/dense_matcher.cpp 
-         src/superglue/superglue.cpp src/test.cpp)
+         src/superglue/superglue.cpp
+         src/test.cpp)
 
 set(EXPERIMENT src/stereo_dataset.h src/stereo_dataset.cpp
+               src/PFMReadWrite.h src/PFMReadWrite.cpp
                src/feature_extractor.h src/feature_extractor.cpp
                src/sparse_matcher.h src/sparse_matcher.cpp
                src/camera_pose_estimator.h src/camera_pose_estimator.cpp
                src/dense_matcher.h src/dense_matcher.cpp
-               src/experiment_designer.h src/experiment_designer.cpp src/experiment.cpp)
+               src/experiment_designer.h src/experiment_designer.cpp
+               src/experiment.cpp)
 
 add_executable(test ${TEST})
 target_link_libraries(test ${TORCH_LIBRARIES} ${OpenCV_LIBS})
