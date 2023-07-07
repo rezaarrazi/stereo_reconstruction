@@ -36,7 +36,7 @@ class DenseMatcher
         cv::Mat disparity_map_;
         cv::Mat colorful_disparity_map_;
 
-        void FillHoles(const StereoDataset& stereo_dataset, std::size_t window_size, std::size_t type);
+        void FillHoles(std::size_t type, std::size_t window_size);
 
     public:
         DenseMatcher() {}
