@@ -131,6 +131,15 @@ std::size_t StereoDataset::GetMaxDisparity() const
     return max_disparity_;
 }
 
+double StereoDataset::GetBaseLine() const
+{
+    return baseline_;
+}
+
+double StereoDataset::GetDoffs() const
+{
+    return doffs_;
+}
 
 void StereoDataset::SetImages(std::size_t image_id)
 {

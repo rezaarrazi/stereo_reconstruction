@@ -35,6 +35,7 @@ class DenseMatcher
         std::array<cv::Mat, 2> rectified_images_;
         cv::Mat disparity_map_;
         cv::Mat colorful_disparity_map_;
+        cv::Mat q_;
 
         void FillHoles(std::size_t type, std::size_t window_size);
 
@@ -47,6 +48,8 @@ class DenseMatcher
 
         cv::Mat GetColorfulDisparityMap() const;
 
+        cv::Mat GetDisparityToDepthMap() const;
+
         void RectifyImages();
 
         void ComputeDisparityMap(std::size_t type);
@@ -57,6 +60,5 @@ class DenseMatcher
 
 
 #endif
-
 
 

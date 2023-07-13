@@ -60,6 +60,10 @@ class StereoDataset
 
         std::size_t GetMaxDisparity() const;
 
+        double GetBaseLine() const;
+
+        double GetDoffs() const;
+
         void SetImages(std::size_t image_id);
 
         void SetDisparityMaps(std::size_t image_id);
