@@ -36,34 +36,18 @@ void MeshReconstruction::writeMeshToFile(const std::string& filename) {
         std::cerr << "Could not open the file!" << std::endl;
         return;
     }
-    
-    std::vector<std::pair<cv::Point3f, cv::Vec3b>> pointVertices;
-    for (int i = 0; i < pointCloud.rows; ++i) {
-        for (int j = 0; j < pointCloud.cols; ++j) {
-            cv::Point3f point = pointCloud.at<cv::Point3f>(i, j);
-            cv::Vec3b color = colorCloud.at<cv::Vec3b>(i, j);
-
-            pointVertices.push_back({point, color});
-        }
-    }
 
     std::vector<std::array<int, 3>> triangles; // Triangle indices
 
     // Prepare data to write
-    int height = pointCloud.rows;
-    int width = pointCloud.cols;
-    for (int i = 0; i < height-1; ++i) {
-        for (int j = 0; j < width-1; ++j) {
-            int i0 = i*width + j;
-			int i1 = (i + 1)*width + j;
-			int i2 = i*width + j + 1;
-			int i3 = (i + 1)*width + j + 1;
-
+    std::vector<std::pair<cv::Point3f, cv::Vec3b>> validPoints;
+    for (int i = 0; i < pointCloud.rows-2; ++i) {
+        for (int j = 0; j < pointCloud.cols-2; ++j) {
             cv::Point3f points[4] = {
-                pointVertices[i0].first,
-                pointVertices[i1].first,
-                pointVertices[i2].first,
-                pointVertices[i3].first
+                pointCloud.at<cv::Point3f>(i, j),
+                pointCloud.at<cv::Point3f>(i+1, j),
+                pointCloud.at<cv::Point3f>(i, j+1),
+                pointCloud.at<cv::Point3f>(i+1, j+1)
             };
 
             bool valid[4];
@@ -75,13 +59,8 @@ void MeshReconstruction::writeMeshToFile(const std::string& filename) {
                 float d1 = cv::norm(points[0] - points[2]);
                 float d2 = cv::norm(points[1] - points[2]);
 
-                // std::cout << "d0: " << d0 << ", d1: " << d1 << ", d2: " << d2 << std::endl; 
-
-                if (edgeThreshold > d0 && edgeThreshold > d1 && edgeThreshold > d2){
-                    // std::cout << "p0: " << pointVertices[i0].first.x << ", " << pointVertices[i0].first.y << ", p1: " << pointVertices[i1].first.x << ", " << pointVertices[i1].first.y << ", p2: " << pointVertices[i2].first.x << ", " << pointVertices[i2].first.y << std::endl; 
-                    triangles.push_back({i0, i1, i2});
-                }
-                
+                if (edgeThreshold > d0 && edgeThreshold > d1 && edgeThreshold > d2)
+                    triangles.push_back({i * pointCloud.cols + j, (i + 1) * pointCloud.cols + j, i * pointCloud.cols + j + 1});
             }
 
             if (valid[1] && valid[2] && valid[3]) {
@@ -89,28 +68,28 @@ void MeshReconstruction::writeMeshToFile(const std::string& filename) {
                 float d1 = cv::norm(points[3] - points[2]);
                 float d2 = cv::norm(points[1] - points[2]);
 
-                // std::cout << "d0: " << d0 << ", d1: " << d1 << ", d2: " << d2 << std::endl; 
-
-                if (edgeThreshold > d0 && edgeThreshold > d1 && edgeThreshold > d2){
-                    // std::cout << "p0: " << pointVertices[i0].first.x << ", " << pointVertices[i0].first.y << ", p1: " << pointVertices[i1].first.x << ", " << pointVertices[i1].first.y << ", p2: " << pointVertices[i2].first.x << ", " << pointVertices[i2].first.y << std::endl; 
-                    triangles.push_back({i1, i3, i2});
-                }
+                if (edgeThreshold > d0 && edgeThreshold > d1 && edgeThreshold > d2)
+                    triangles.push_back({(i + 1) * pointCloud.cols + j, (i + 1) * pointCloud.cols + j + 1, i * pointCloud.cols + j + 1});
             }
         }
     }
 
-    size_t faces_limit = 100;
     // Write the .off header
     outFile << "COFF\n" << pointCloud.rows*pointCloud.cols << " " << triangles.size() << " " << 0 << "\n";
     
     // Write vertices
-    for (const auto& [point, color] : pointVertices) {
-        if (std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z)) {
-            outFile << point.x << " " << point.y << " " << point.z << " " 
-                    << (int)color[0] << " " << (int)color[1] << " " << (int)color[2] << " 255\n";
-        }
-        else {
-            outFile << "0.0 0.0 0.0 0 0 0 0\n";
+    for (int i = 0; i < pointCloud.rows; ++i) {
+        for (int j = 0; j < pointCloud.cols; ++j) {
+            cv::Point3f point = pointCloud.at<cv::Point3f>(i, j);
+            cv::Vec3b color = colorCloud.at<cv::Vec3b>(i, j);
+
+            if (std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z)) {
+                outFile << point.x << " " << point.y << " " << point.z << " " 
+                        << (int)color[0] << " " << (int)color[1] << " " << (int)color[2] << " 255\n";
+            }
+            else {
+                outFile << "0.0 0.0 0.0 0 0 0 0\n";
+            }
         }
     }
 
@@ -118,25 +97,8 @@ void MeshReconstruction::writeMeshToFile(const std::string& filename) {
 	outFile << "# nVerticesPerFace idx0 idx1 idx2 ..." << std::endl;
 
     // Write triangles
-    for (size_t i = 0; i < triangles.size(); ++i) {
-        // unsigned int i0 = triangles[i][0];
-        // unsigned int i1 = triangles[i][1];
-        // unsigned int i2 = triangles[i][2];
-        
-        // cv::Point3f p0 = pointVertices[i0].first;
-        // cv::Point3f p1 = pointVertices[i1].first;
-        // cv::Point3f p2 = pointVertices[i2].first;
-
-        // float d0 = cv::norm(p0 - p1);
-        // float d1 = cv::norm(p0 - p2);
-        // float d2 = cv::norm(p1 - p2);
-
-        // std::cout << "i0: " << i0 / width << ", " << i0 % width << ", i1: " << i1 / width << ", " << i1 % width << ", i2: " << i2 / width << ", " << i2 % width << std::endl; 
-        // std::cout << "p0: " << p0.x << ", " << p0.y << ", p1: " << p1.x << ", " << p1.y << ", p2: " << p2.x << ", " << p2.y << std::endl; 
-        // std::cout << "d0: " << d0 << ", d1: " << d1 << ", d2: " << d2 << std::endl; 
-        // std::cout << "------------------------" << std::endl; 
-
-        outFile << "3 " << triangles[i][0] << " " << triangles[i][1] << " " << triangles[i][2] << "\n";
+    for (const auto& triangle : triangles) {
+        outFile << "3 " << triangle[0] << " " << triangle[1] << " " << triangle[2] << "\n";
     }
 
     outFile.close();
