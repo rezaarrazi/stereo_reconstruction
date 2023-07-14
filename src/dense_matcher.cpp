@@ -75,13 +75,19 @@ cv::Mat DenseMatcher::GetColorfulDisparityMap() const
 }
 
 
+cv::Mat DenseMatcher::GetDisparityToDepthMap() const
+{
+    return q_;
+}
+
+
 void DenseMatcher::RectifyImages()
 {
 
     // rectify images
-    cv::Mat r0, r1, p0, p1, q;
+    cv::Mat r0, r1, p0, p1;
     cv::stereoRectify(camera_intrinsics_[0], cv::noArray(), camera_intrinsics_[1], cv::noArray(), image_size_,
-                      rotation_, translation_, r0, r1, p0, p1, q, cv::CALIB_ZERO_DISPARITY);
+                      rotation_, translation_, r0, r1, p0, p1, q_, cv::CALIB_ZERO_DISPARITY);
     
     cv::Mat map00, map01, map10, map11;
     cv::initUndistortRectifyMap(camera_intrinsics_[0], cv::noArray(), r0, p0, image_size_, CV_32F, map00, map01);
@@ -133,18 +139,15 @@ void DenseMatcher::ComputeDisparityMap(std::size_t type)
 
         // FillHoles(1, 15);
 
-        // FillHoles(stereo_dataset, 5, 0);
-        // FillHoles(stereo_dataset, 10, 1);
-
         // cv::Mat disparity_map1;
         // sgbm1->compute(rectified_images_[1], rectified_images_[0], disparity_map1);
 
         // disparity_map1.convertTo(disparity_map1, CV_32F);
 
         // cv::Mat filtered_disparity_map;
-        // wls_filter->filter(disparity_map_, stereo_dataset.GetImages()[0], filtered_disparity_map, disparity_map1);
+        // wls_filter->filter(disparity_map_, images_[0], filtered_disparity_map, disparity_map1);
 
-        //cv::threshold(filtered_disparity_map, filtered_disparity_map, 0, stereo_dataset.GetMaxDisparity() * 16, cv::THRESH_TOZERO);
+        // cv::threshold(filtered_disparity_map, filtered_disparity_map, 0, stereo_dataset.GetMaxDisparity() * 16, cv::THRESH_TOZERO);
         // filtered_disparity_map.convertTo(filtered_disparity_map, CV_8U, 1.0 / 16.0);
 
         // disparity_map_ = filtered_disparity_map;
