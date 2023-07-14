@@ -74,6 +74,10 @@ cv::Mat DenseMatcher::GetColorfulDisparityMap() const
     return colorful_disparity_map_;
 }
 
+cv::Mat DenseMatcher::GetDisparityToDepthMap() const
+{
+    return q_;
+}
 
 cv::Mat DenseMatcher::GetDisparityToDepthMap() const
 {

@@ -3,6 +3,7 @@
 #include "sparse_matcher.h"
 #include "camera_pose_estimator.h"
 #include "dense_matcher.h"
+#include "mesh_reconstruction.h"
 // #include "superglue.h"
 
 
