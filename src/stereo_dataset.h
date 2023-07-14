@@ -52,6 +52,10 @@ class StereoDataset
 
         std::array<cv::Mat, 2> GetCameraIntrinsics() const;
 
+        double GetDoffs() const;
+
+        double GetBaseline() const;
+
         std::size_t GetImageWidth() const;
 
         std::size_t GetImageHeight() const;
