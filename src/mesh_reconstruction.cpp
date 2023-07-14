@@ -19,9 +19,27 @@ MeshReconstruction::MeshReconstruction(StereoDataset dataset) {
         0, 0, -1/baseline, doffs / baseline);
 }
 
+cv::Point3f MeshReconstruction::rotateY(const cv::Point3f& point, float theta) {
+    float thetaRad = theta * CV_PI / 180.0;
+    return cv::Point3f(
+        cos(thetaRad) * point.x + sin(thetaRad) * point.z,
+        point.y,
+        -sin(thetaRad) * point.x + cos(thetaRad) * point.z
+    );
+}
+
 void MeshReconstruction::reconstructMesh(const cv::Mat& disparityMap, StereoDataset dataset) {
     cv::reprojectImageTo3D(disparityMap, pointCloud, Q);
     
+    for (int i = 0; i < pointCloud.rows; ++i) {
+        for (int j = 0; j < pointCloud.cols; ++j) {
+            cv::Point3f& point = pointCloud.at<cv::Point3f>(i, j);
+            if (std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z)) {
+                point = rotateY(point, 180);
+            }
+        }
+    }
+
     // Add color information
     std::array<cv::Mat, 2> images = dataset.GetImages();
     cv::cvtColor(images[0], images[0], cv::COLOR_BGR2RGB); // Ensure color image is in RGB
@@ -60,7 +78,8 @@ void MeshReconstruction::writeMeshToFile(const std::string& filename) {
                 float d2 = cv::norm(points[1] - points[2]);
 
                 if (edgeThreshold > d0 && edgeThreshold > d1 && edgeThreshold > d2)
-                    triangles.push_back({i * pointCloud.cols + j, (i + 1) * pointCloud.cols + j, i * pointCloud.cols + j + 1});
+                    // triangles.push_back({i * pointCloud.cols + j, (i + 1) * pointCloud.cols + j, i * pointCloud.cols + j + 1});
+                    triangles.push_back({i * pointCloud.cols + j, i * pointCloud.cols + j + 1, (i + 1) * pointCloud.cols + j});
             }
 
             if (valid[1] && valid[2] && valid[3]) {
@@ -69,7 +88,8 @@ void MeshReconstruction::writeMeshToFile(const std::string& filename) {
                 float d2 = cv::norm(points[1] - points[2]);
 
                 if (edgeThreshold > d0 && edgeThreshold > d1 && edgeThreshold > d2)
-                    triangles.push_back({(i + 1) * pointCloud.cols + j, (i + 1) * pointCloud.cols + j + 1, i * pointCloud.cols + j + 1});
+                    // triangles.push_back({(i + 1) * pointCloud.cols + j, (i + 1) * pointCloud.cols + j + 1, i * pointCloud.cols + j + 1});
+                    triangles.push_back({(i + 1) * pointCloud.cols + j, i * pointCloud.cols + j + 1, (i + 1) * pointCloud.cols + j + 1});
             }
         }
     }
