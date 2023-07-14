@@ -74,14 +74,18 @@ cv::Mat DenseMatcher::GetColorfulDisparityMap() const
     return colorful_disparity_map_;
 }
 
+cv::Mat DenseMatcher::GetDisparityToDepthMap() const
+{
+    return q_;
+}
 
 void DenseMatcher::RectifyImages()
 {
 
     // rectify images
-    cv::Mat r0, r1, p0, p1, q;
+    cv::Mat r0, r1, p0, p1;
     cv::stereoRectify(camera_intrinsics_[0], cv::noArray(), camera_intrinsics_[1], cv::noArray(), image_size_,
-                      rotation_, translation_, r0, r1, p0, p1, q, cv::CALIB_ZERO_DISPARITY);
+                      rotation_, translation_, r0, r1, p0, p1, q_, cv::CALIB_ZERO_DISPARITY);
     
     cv::Mat map00, map01, map10, map11;
     cv::initUndistortRectifyMap(camera_intrinsics_[0], cv::noArray(), r0, p0, image_size_, CV_32F, map00, map01);
