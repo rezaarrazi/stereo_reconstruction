@@ -108,6 +108,18 @@ std::array<cv::Mat, 2> StereoDataset::GetCameraIntrinsics() const
 }
 
 
+double StereoDataset::GetDoffs() const
+{
+    return doffs_;
+}
+
+
+double StereoDataset::GetBaseline() const
+{
+    return baseline_;
+}
+
+
 std::size_t StereoDataset::GetImageWidth() const
 {
     return image_width_;
