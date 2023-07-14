@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+make_minimum_required(VERSION 2.8)
 
 project(StereoReconstruction)
 
@@ -23,7 +23,7 @@ set(TEST src/stereo_dataset.h src/stereo_dataset.cpp
          src/sparse_matcher.h src/sparse_matcher.cpp
          src/camera_pose_estimator.h src/camera_pose_estimator.cpp
          src/dense_matcher.h src/dense_matcher.cpp 
-         src/superglue/superglue.cpp
+         src/superglue/superglue.cpp src/mesh_reconstruction.cpp
          src/test.cpp)
 
 set(EXPERIMENT src/stereo_dataset.h src/stereo_dataset.cpp
