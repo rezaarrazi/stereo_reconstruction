@@ -55,9 +55,10 @@ int main()
     dense_matcher.ComputeDisparityMap(1);
 
     stereo_dataset.SetDisparityMaps(0);
-
+    
+    float distanceThreshold = 20000.0;
     MeshReconstruction mesh_reconstruction(stereo_dataset);
-    mesh_reconstruction.reconstructMesh(stereo_dataset.GetDisparityMaps()[0], stereo_dataset);
+    mesh_reconstruction.reconstructMesh(dense_matcher.GetDisparityMap(), stereo_dataset, distanceThreshold);
     mesh_reconstruction.writeMeshToFile("mesh.off");
 
     cv::Mat out1;

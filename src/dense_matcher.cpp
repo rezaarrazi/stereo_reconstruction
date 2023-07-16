@@ -79,11 +79,6 @@ cv::Mat DenseMatcher::GetDisparityToDepthMap() const
     return q_;
 }
 
-cv::Mat DenseMatcher::GetDisparityToDepthMap() const
-{
-    return q_;
-}
-
 
 void DenseMatcher::RectifyImages()
 {

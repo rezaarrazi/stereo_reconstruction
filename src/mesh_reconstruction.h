@@ -14,7 +14,7 @@ private:
 public:
     MeshReconstruction(StereoDataset dataset);
 
-    void reconstructMesh(const cv::Mat& disparityMap, StereoDataset dataset);
+    void reconstructMesh(const cv::Mat& disparityMap, StereoDataset dataset, float distanceThreshold);
     void writeMeshToFile(const std::string& filename);
 };
 

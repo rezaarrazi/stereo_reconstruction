@@ -3,7 +3,7 @@
 #include "mesh_reconstruction.h"
 
 MeshReconstruction::MeshReconstruction(StereoDataset dataset) {
-    double baseline = dataset.GetBaseLine();
+    double baseline = dataset.GetBaseline();
     double doffs = dataset.GetDoffs();
     
     // Get camera matrices
@@ -28,7 +28,7 @@ cv::Point3f MeshReconstruction::rotateY(const cv::Point3f& point, float theta) {
     );
 }
 
-void MeshReconstruction::reconstructMesh(const cv::Mat& disparityMap, StereoDataset dataset) {
+void MeshReconstruction::reconstructMesh(const cv::Mat& disparityMap, StereoDataset dataset, float distanceThreshold) {
     cv::reprojectImageTo3D(disparityMap, pointCloud, Q);
     
     for (int i = 0; i < pointCloud.rows; ++i) {
@@ -36,6 +36,13 @@ void MeshReconstruction::reconstructMesh(const cv::Mat& disparityMap, StereoData
             cv::Point3f& point = pointCloud.at<cv::Point3f>(i, j);
             if (std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z)) {
                 point = rotateY(point, 180);
+            }
+
+            float norm = cv::norm(point); // calculate the Euclidean norm (magnitude)
+            if (norm > distanceThreshold) {
+                point.x = std::numeric_limits<float>::infinity();
+                point.y = std::numeric_limits<float>::infinity();
+                point.z = std::numeric_limits<float>::infinity();
             }
         }
     }
