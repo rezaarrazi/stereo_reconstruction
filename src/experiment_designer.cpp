@@ -367,6 +367,30 @@ void ExperimentDesigner::CompareDisparityMaps(std::size_t feature_extractor_type
 }
 
 
+void ExperimentDesigner::ReconstructScenesDirectly(std::size_t index, std::size_t dense_matcher_type)
+{
+
+    stereo_dataset_.SetImages(index);
+
+    stereo_dataset_.SetCalibrations(index);
+
+    dense_matcher_.LoadDataDirectly(stereo_dataset_);
+
+    dense_matcher_.ComputeDisparityMapDirectly(dense_matcher_type);
+
+    stereo_dataset_.SetDisparityMaps(index);
+    
+    float distance_threshold = 20000.0;
+
+    scene_reconstructor_.LoadData(stereo_dataset_);
+
+    scene_reconstructor_.ReconstructScene(dense_matcher_.GetDisparityMap(), stereo_dataset_, distance_threshold);
+
+    scene_reconstructor_.WriteMeshToFile("../mesh.off");
+
+}
+
+
 
 
 
