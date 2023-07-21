@@ -3,7 +3,7 @@
 #include "sparse_matcher.h"
 #include "camera_pose_estimator.h"
 #include "dense_matcher.h"
-#include "mesh_reconstruction.h"
+#include "scene_reconstructor.h"
 // #include "superglue.h"
 
 
@@ -56,10 +56,11 @@ int main()
 
     stereo_dataset.SetDisparityMaps(0);
     
-    float distanceThreshold = 20000.0;
-    MeshReconstruction mesh_reconstruction(stereo_dataset);
-    mesh_reconstruction.reconstructMesh(dense_matcher.GetDisparityMap(), stereo_dataset, distanceThreshold);
-    mesh_reconstruction.writeMeshToFile("mesh.off");
+    float distance_threshold = 20000.0;
+    SceneReconstructor scene_reconstructor;
+    scene_reconstructor.LoadData(stereo_dataset);
+    scene_reconstructor.ReconstructScene(dense_matcher.GetDisparityMap(), stereo_dataset, distance_threshold);
+    scene_reconstructor.WriteMeshToFile("../mesh.off");
 
     cv::Mat out1;
     cv::Mat out2;
