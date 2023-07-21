@@ -7,6 +7,7 @@
 #include "sparse_matcher.h"
 #include "camera_pose_estimator.h"
 #include "dense_matcher.h"
+#include "scene_reconstructor.h"
 
 
 class ExperimentDesigner
@@ -18,6 +19,7 @@ class ExperimentDesigner
         SparseMatcher sparse_matcher_;
         CameraPoseEstimator camera_pose_estimator_;
         DenseMatcher dense_matcher_;
+        SceneReconstructor scene_reconstructor_;
 
         cv::Mat ROTATION_GT_ = (cv::Mat_<double>(3, 3) << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
         cv::Mat TRANSLATION_GT_ = (cv::Mat_<double>(3, 1) << -1.0, 0.0, 0.0);
@@ -47,6 +49,8 @@ class ExperimentDesigner
         void PrintDisparityMaps(std::size_t index);
 
         void CompareDisparityMaps(std::size_t feature_extractor_type, std::size_t sparse_matcher_type, std::size_t dense_matcher_type);
+
+        void ReconstructScenesDirectly(std::size_t index, std::size_t dense_matcher_type);
 
 };
 
