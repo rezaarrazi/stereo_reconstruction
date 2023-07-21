@@ -35,26 +35,30 @@ class DenseMatcher
         std::array<cv::Mat, 2> rectified_images_;
         cv::Mat disparity_map_;
         cv::Mat colorful_disparity_map_;
-        cv::Mat q_;
-
-        void FillHoles(std::size_t type, std::size_t window_size);
+        cv::Mat projection_matrix_;        
 
     public:
         DenseMatcher() {}
 
         void LoadData(const StereoDataset& stereo_dataset, const cv::Mat& rotation, const cv::Mat& translation);
 
+        void LoadDataDirectly(const StereoDataset& stereo_dataset);
+
         cv::Mat GetDisparityMap() const;
 
         cv::Mat GetColorfulDisparityMap() const;
 
-        cv::Mat GetDisparityToDepthMap() const;
+        cv::Mat GetProjectionMatrix() const;
 
         void RectifyImages();
 
         void ComputeDisparityMap(std::size_t type);
 
         void ComputeDisparityMapDirectly(std::size_t type);
+
+        void ComputeDisparityMapTry(std::size_t type);
+
+        void FillHoles(std::size_t type, std::size_t window_size);
 
 };
 
