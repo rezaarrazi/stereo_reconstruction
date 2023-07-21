@@ -1,58 +1,6 @@
 #include "dense_matcher.h"
 
 
-void DenseMatcher::FillHoles(std::size_t type, std::size_t window_size)
-{
-
-    std::size_t image_height = disparity_map_.rows;
-    std::size_t image_width = disparity_map_.cols;
-
-    uchar maximum_value = 0;
-    std::size_t value = 0;
-
-    cv::Mat filled_disparity_map = disparity_map_.clone();
-
-    std::size_t half_size = static_cast<std::size_t>(window_size / 2);
-
-    std::size_t window_element_number = window_size * window_size;
-
-    if (type == 0)
-    {
-        for (std::size_t i = half_size; i < image_height - half_size; i++)
-            for (std::size_t j = half_size; j < image_width - half_size; j++)
-                if (disparity_map_.at<uchar>(i, j) < 10)
-                {
-                    maximum_value = 0;
-
-                    for (std::size_t k = i - half_size; k < i + half_size + 1; k++)
-                        for (std::size_t l = j - half_size; l < j + half_size + 1; l++)
-                            if (disparity_map_.at<uchar>(k, l) > maximum_value)
-                                maximum_value = disparity_map_.at<uchar>(k, l);
-
-                    filled_disparity_map.at<uchar>(i, j) = maximum_value;
-                }
-    }
-    else
-    {
-        for (std::size_t i = half_size; i < image_height - half_size; i++)
-            for (std::size_t j = half_size; j < image_width - half_size; j++)
-                if (disparity_map_.at<uchar>(i, j) < 10)
-                {
-                    value = 0;
-
-                    for (std::size_t k = i - half_size; k < i + half_size + 1; k++)
-                        for (std::size_t l = j - half_size; l < j + half_size + 1; l++)
-                            value += static_cast<std::size_t>(disparity_map_.at<uchar>(k, l));
-                
-                    filled_disparity_map.at<uchar>(i, j) = static_cast<uchar>(static_cast<std::size_t>(value / window_element_number));
-                }
-    }
-
-    disparity_map_ = filled_disparity_map;
-
-}
-
-
 void DenseMatcher::LoadData(const StereoDataset& stereo_dataset, const cv::Mat& rotation, const cv::Mat& translation)
 {
     images_ = stereo_dataset.GetImages();
@@ -60,6 +8,14 @@ void DenseMatcher::LoadData(const StereoDataset& stereo_dataset, const cv::Mat& 
     camera_intrinsics_ = stereo_dataset.GetCameraIntrinsics();
     rotation_ = rotation;
     translation_ = translation;
+}
+
+
+void DenseMatcher::LoadDataDirectly(const StereoDataset& stereo_dataset)
+{
+    images_ = stereo_dataset.GetImages();
+    image_size_ = stereo_dataset.GetImageSize();
+    camera_intrinsics_ = stereo_dataset.GetCameraIntrinsics();
 }
 
 
@@ -74,9 +30,10 @@ cv::Mat DenseMatcher::GetColorfulDisparityMap() const
     return colorful_disparity_map_;
 }
 
-cv::Mat DenseMatcher::GetDisparityToDepthMap() const
+
+cv::Mat DenseMatcher::GetProjectionMatrix() const
 {
-    return q_;
+    return projection_matrix_;
 }
 
 
@@ -86,7 +43,7 @@ void DenseMatcher::RectifyImages()
     // rectify images
     cv::Mat r0, r1, p0, p1;
     cv::stereoRectify(camera_intrinsics_[0], cv::noArray(), camera_intrinsics_[1], cv::noArray(), image_size_,
-                      rotation_, translation_, r0, r1, p0, p1, q_, cv::CALIB_ZERO_DISPARITY);
+                      rotation_, translation_, r0, r1, p0, p1, projection_matrix_, cv::CALIB_ZERO_DISPARITY);
     
     cv::Mat map00, map01, map10, map11;
     cv::initUndistortRectifyMap(camera_intrinsics_[0], cv::noArray(), r0, p0, image_size_, CV_32F, map00, map01);
@@ -193,6 +150,86 @@ void DenseMatcher::ComputeDisparityMapDirectly(std::size_t type)
     }
     else
         std::cout << "type should be >= 0 and < 2.\n";
+
+}
+
+
+void DenseMatcher::ComputeDisparityMapTry(std::size_t type)
+{
+    if (type == 0)
+    {
+        cv::Ptr<cv::StereoBM> bm = cv::StereoBM::create(BM_DISPARITY_NUMBER_, BM_BLOCK_SIZE_);
+        bm->setPreFilterCap(PRE_FILTER_CAP_);
+        bm->setUniquenessRatio(UNIQUENESS_RATIO_);
+
+        std::array<cv::Mat, 2> grayscale_images;
+        cv::cvtColor(images_[0], grayscale_images[0], CV_BGR2GRAY);
+        cv::cvtColor(images_[1], grayscale_images[1], CV_BGR2GRAY);
+
+        bm->compute(grayscale_images[0], grayscale_images[1], disparity_map_);
+    }
+    else if (type == 1)
+    {
+        cv::Ptr<cv::StereoSGBM> sgbm = cv::StereoSGBM::create(SGBM_MIN_DISPARITY_, SGBM_DISPARITY_NUMBER_, SGBM_BLOCK_SIZE_,
+                                                              8 * 3 * SGBM_BLOCK_SIZE_ * SGBM_BLOCK_SIZE_, 32 * 3 * SGBM_BLOCK_SIZE_ * SGBM_BLOCK_SIZE_,
+                                                              SGBM_DISP12_MAX_DIFF_, PRE_FILTER_CAP_, UNIQUENESS_RATIO_,
+                                                              SGBM_SPECKLE_WINDOW_SIZE_, SGBM_SPECKLE_RANGE_, cv::StereoSGBM::MODE_SGBM);
+
+        sgbm->compute(images_[0], images_[1], disparity_map_);
+    }
+    else
+        std::cout << "type should be >= 0 and < 2.\n";
+}
+
+
+void DenseMatcher::FillHoles(std::size_t type, std::size_t window_size)
+{
+
+    std::size_t image_height = disparity_map_.rows;
+    std::size_t image_width = disparity_map_.cols;
+
+    uchar maximum_value = 0;
+    std::size_t value = 0;
+
+    cv::Mat filled_disparity_map = disparity_map_.clone();
+
+    std::size_t half_size = static_cast<std::size_t>(window_size / 2);
+
+    std::size_t window_element_number = window_size * window_size;
+
+    if (type == 0)
+    {
+        for (std::size_t i = half_size; i < image_height - half_size; i++)
+            for (std::size_t j = half_size; j < image_width - half_size; j++)
+                if (disparity_map_.at<uchar>(i, j) < 10)
+                {
+                    maximum_value = 0;
+
+                    for (std::size_t k = i - half_size; k < i + half_size + 1; k++)
+                        for (std::size_t l = j - half_size; l < j + half_size + 1; l++)
+                            if (disparity_map_.at<uchar>(k, l) > maximum_value)
+                                maximum_value = disparity_map_.at<uchar>(k, l);
+
+                    filled_disparity_map.at<uchar>(i, j) = maximum_value;
+                }
+    }
+    else
+    {
+        for (std::size_t i = half_size; i < image_height - half_size; i++)
+            for (std::size_t j = half_size; j < image_width - half_size; j++)
+                if (disparity_map_.at<uchar>(i, j) < 10)
+                {
+                    value = 0;
+
+                    for (std::size_t k = i - half_size; k < i + half_size + 1; k++)
+                        for (std::size_t l = j - half_size; l < j + half_size + 1; l++)
+                            value += static_cast<std::size_t>(disparity_map_.at<uchar>(k, l));
+                
+                    filled_disparity_map.at<uchar>(i, j) = static_cast<uchar>(static_cast<std::size_t>(value / window_element_number));
+                }
+    }
+
+    disparity_map_ = filled_disparity_map;
 
 }
 
