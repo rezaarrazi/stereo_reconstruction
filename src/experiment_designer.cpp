@@ -151,13 +151,14 @@ void ExperimentDesigner::CompareKeypointNumber()
 }
 
 
-void ExperimentDesigner::CompareFeatureExtractionAndMatching(std::size_t type, std::size_t keypoint_number, double distance_ratio, double ratio)
+void ExperimentDesigner::CompareFeatureExtractionAndBFSortTop(std::size_t feature_extractor_type)
 {
 
-    // The order is ORB, SIFT, SURF, BRISK
-    std::array<std::array<double, 2>, 4> rmses;
+    std::array<std::size_t, 3> keypoint_numbers = {50, 100, 150};
 
-    for (std::size_t i = 0; i < 4; i++)
+    std::array<std::array<double, 2>, 3> rmses;
+
+    for (std::size_t i = 0; i < 3; i++)
         for (std::size_t j = 0; j < 2; j++)
             rmses[i][j] = 0.0;
 
@@ -172,16 +173,11 @@ void ExperimentDesigner::CompareFeatureExtractionAndMatching(std::size_t type, s
 
         camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
 
-        for (std::size_t j = 0; j < 4; j++)
+        for (std::size_t j = 0; j < 3; j++)
         {
-            feature_extractor_.ExtractFeatures(j);
+            feature_extractor_.ExtractFeatures(feature_extractor_type);
 
-            if (type == 0)
-                sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), keypoint_number);
-            else if (type == 1)
-                sparse_matcher_.MatchSparselyBFMinDistance(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), distance_ratio);
-            else if (type == 2)
-                sparse_matcher_.MatchSparselyFLANNBased(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), ratio);
+            sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), keypoint_numbers[j]);
             
             camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
             camera_pose_estimator_.EstimateCameraPose(3);
@@ -194,16 +190,122 @@ void ExperimentDesigner::CompareFeatureExtractionAndMatching(std::size_t type, s
 
     }
 
-    for (std::size_t i = 0; i < 4; i++)
+    for (std::size_t i = 0; i < 3; i++)
     {
         rmses[i][0] /= image_pair_number;
         rmses[i][1] /= image_pair_number;
     }
 
-    std::cout << SPARSE_MATCHER_NAMES_[type] << '\n';
+    std::cout << FEATURE_EXTRACTOR_NAMES_[feature_extractor_type] << '\n';
 
-    for (std::size_t i = 0; i < 4; i++)
-        std::cout << FEATURE_EXTRACTOR_NAMES_[i] << ": rotation: " << rmses[i][0] << " translation: " << rmses[i][1] << '\n';
+    for (std::size_t i = 0; i < 3; i++)
+        std::cout << keypoint_numbers[i] << ": rotation: " << rmses[i][0] << " translation: " << rmses[i][1] << '\n';
+
+}
+
+
+void ExperimentDesigner::CompareFeatureExtractionAndBFMinDistance(std::size_t feature_extractor_type)
+{
+
+    std::array<double, 3> distance_ratios = {3.0, 4.0, 5.0};
+
+    std::array<std::array<double, 2>, 3> rmses;
+
+    for (std::size_t i = 0; i < 3; i++)
+        for (std::size_t j = 0; j < 2; j++)
+            rmses[i][j] = 0.0;
+
+    std::size_t image_pair_number = stereo_dataset_.GetImagePairNumber();
+
+    for (std::size_t i = 0; i < image_pair_number; i++)
+    {
+        stereo_dataset_.SetImages(i);
+        stereo_dataset_.SetCalibrations(i);
+
+        feature_extractor_.SetImages(stereo_dataset_.GetImages());
+
+        camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
+
+        for (std::size_t j = 0; j < 3; j++)
+        {
+            feature_extractor_.ExtractFeatures(feature_extractor_type);
+
+            sparse_matcher_.MatchSparselyBFMinDistance(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), distance_ratios[j]);
+            
+            camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
+            camera_pose_estimator_.EstimateCameraPose(3);
+
+            std::array<double, 2> rmse = ComputeRMSE(camera_pose_estimator_.GetRotation(), camera_pose_estimator_.GetTranslation());
+
+            rmses[j][0] += rmse[0];
+            rmses[j][1] += rmse[1];
+        }
+
+    }
+
+    for (std::size_t i = 0; i < 3; i++)
+    {
+        rmses[i][0] /= image_pair_number;
+        rmses[i][1] /= image_pair_number;
+    }
+
+    std::cout << FEATURE_EXTRACTOR_NAMES_[feature_extractor_type] << '\n';
+
+    for (std::size_t i = 0; i < 3; i++)
+        std::cout << distance_ratios[i] << ": rotation: " << rmses[i][0] << " translation: " << rmses[i][1] << '\n';
+
+}
+
+
+void ExperimentDesigner::CompareFeatureExtractionAndFLANNBased(std::size_t feature_extractor_type)
+{
+
+    std::array<double, 3> ratios = {0.3, 0.6, 0.8};
+
+    std::array<std::array<double, 2>, 3> rmses;
+
+    for (std::size_t i = 0; i < 3; i++)
+        for (std::size_t j = 0; j < 2; j++)
+            rmses[i][j] = 0.0;
+
+    std::size_t image_pair_number = stereo_dataset_.GetImagePairNumber();
+
+    for (std::size_t i = 0; i < image_pair_number; i++)
+    {
+        stereo_dataset_.SetImages(i);
+        stereo_dataset_.SetCalibrations(i);
+
+        feature_extractor_.SetImages(stereo_dataset_.GetImages());
+
+        camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
+
+        for (std::size_t j = 0; j < 3; j++)
+        {
+            feature_extractor_.ExtractFeatures(feature_extractor_type);
+
+            sparse_matcher_.MatchSparselyFLANNBased(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), ratios[j]);
+            
+            camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
+            camera_pose_estimator_.EstimateCameraPose(3);
+
+            std::array<double, 2> rmse = ComputeRMSE(camera_pose_estimator_.GetRotation(), camera_pose_estimator_.GetTranslation());
+
+            rmses[j][0] += rmse[0];
+            rmses[j][1] += rmse[1];
+        }
+
+    }
+
+    for (std::size_t i = 0; i < 3; i++)
+    {
+        rmses[i][0] /= image_pair_number;
+        rmses[i][1] /= image_pair_number;
+    }
+
+    std::cout << FEATURE_EXTRACTOR_NAMES_[feature_extractor_type] << '\n';
+
+    for (std::size_t i = 0; i < 3; i++)
+        std::cout << ratios[i] << ": rotation: " << rmses[i][0] << " translation: " << rmses[i][1] << '\n';
 
 }
 
@@ -229,7 +331,8 @@ void ExperimentDesigner::CompareCameraPoseEstimation()
         camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
 
         feature_extractor_.ExtractFeatures(3);
-        sparse_matcher_.MatchSparselyFLANNBased(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 0.6);
+
+        sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 150);
 
         camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
 
@@ -308,7 +411,7 @@ void ExperimentDesigner::PrintDisparityMaps(std::size_t index)
 }
 
 
-void ExperimentDesigner::CompareDisparityMaps(std::size_t feature_extractor_type, std::size_t sparse_matcher_type, std::size_t dense_matcher_type)
+void ExperimentDesigner::CompareDisparityMaps(std::size_t dense_matcher_type)
 {
 
     std::size_t image_pair_number = stereo_dataset_.GetImagePairNumber();
@@ -327,14 +430,9 @@ void ExperimentDesigner::CompareDisparityMaps(std::size_t feature_extractor_type
 
         feature_extractor_.SetImages(stereo_dataset_.GetImages());
 
-        feature_extractor_.ExtractFeatures(feature_extractor_type);
+        feature_extractor_.ExtractFeatures(3);
 
-        if (sparse_matcher_type == 0)
-            sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 50);
-        else if (sparse_matcher_type == 1)
-            sparse_matcher_.MatchSparselyBFMinDistance(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 3.0);
-        else
-            sparse_matcher_.MatchSparselyFLANNBased(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 0.6);
+        sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 150);
         
         camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
 
@@ -355,8 +453,6 @@ void ExperimentDesigner::CompareDisparityMaps(std::size_t feature_extractor_type
         rmse += ComputeDisparityMapRMSE(dense_matcher_.GetDisparityMap(), stereo_dataset_.GetDisparityMaps()[0]);
     }
 
-    std::cout << "feature extractor: " << FEATURE_EXTRACTOR_NAMES_[feature_extractor_type] << '\n';
-    std::cout << "sparse matcher: " << SPARSE_MATCHER_NAMES_[sparse_matcher_type] << '\n';
     std::cout << "dense matcher: " << DENSE_MATCHER_NAMES_[dense_matcher_type] << '\n';
     std::cout << "pixel ratio 1.0: " << pixel_ratio_1 / static_cast<double>(image_pair_number) << '\n';
     std::cout << "pixel ratio 2.0: " << pixel_ratio_2 / static_cast<double>(image_pair_number) << '\n';
