@@ -41,14 +41,17 @@ class ExperimentDesigner
 
         void CompareKeypointNumber();
 
-        void CompareFeatureExtractionAndMatching(std::size_t type, std::size_t keypoint_number = 50,
-                                                 double distance_ratio = 3.0, double ratio = 0.6);
+        void CompareFeatureExtractionAndBFSortTop(std::size_t feature_extractor_type);
+
+        void CompareFeatureExtractionAndBFMinDistance(std::size_t feature_extractor_type);
+
+        void CompareFeatureExtractionAndFLANNBased(std::size_t feature_extractor_type);
         
         void CompareCameraPoseEstimation();
 
         void PrintDisparityMaps(std::size_t index);
 
-        void CompareDisparityMaps(std::size_t feature_extractor_type, std::size_t sparse_matcher_type, std::size_t dense_matcher_type);
+        void CompareDisparityMaps(std::size_t dense_matcher_type);
 
         void ReconstructScenesDirectly(std::size_t index, std::size_t dense_matcher_type);
 
