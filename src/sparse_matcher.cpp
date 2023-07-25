@@ -109,7 +109,7 @@ void SparseMatcher::DisplayMatchings(const std::array<cv::Mat, 2>& images, const
     cv::imshow("matched images", matched_images);
 
     if (save_matched_images == true)
-        cv::imwrite("../matched_images.png", matched_images);
+        cv::imwrite("../matched_images1.png", matched_images);
 
     cv::waitKey(0);
 
