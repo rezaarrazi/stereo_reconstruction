@@ -28,12 +28,14 @@ int main()
 
     // experiment_designer.CompareCameraPoseEstimation();
 
-    // experiment_designer.PrintDisparityMaps(0);
+    experiment_designer.PrintMatchedImages();
 
-    experiment_designer.CompareDisparityMaps(0);
-    std::cout << "\n\n";
-    experiment_designer.CompareDisparityMaps(1);
-    std::cout << "\n\n";
+    // experiment_designer.CompareDisparityMaps(0);
+    // std::cout << "\n\n";
+    // experiment_designer.CompareDisparityMaps(1);
+    // std::cout << "\n\n";
+
+    // experiment_designer.PrintDisparityMaps(5);
 
     // experiment_designer.ReconstructScenesDirectly(0, 1);
 
