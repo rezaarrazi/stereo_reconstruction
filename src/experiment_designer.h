@@ -49,9 +49,11 @@ class ExperimentDesigner
         
         void CompareCameraPoseEstimation();
 
-        void PrintDisparityMaps(std::size_t index);
+        void PrintMatchedImages();
 
         void CompareDisparityMaps(std::size_t dense_matcher_type);
+
+        void PrintDisparityMaps(std::size_t index);
 
         void ReconstructScenesDirectly(std::size_t index, std::size_t dense_matcher_type);
 
