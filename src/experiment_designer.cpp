@@ -330,9 +330,9 @@ void ExperimentDesigner::CompareCameraPoseEstimation()
 
         camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
 
-        feature_extractor_.ExtractFeatures(3);
+        feature_extractor_.ExtractFeatures(2);
 
-        sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 150);
+        sparse_matcher_.MatchSparselyBFMinDistance(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 5.0);
 
         camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
 
@@ -359,55 +359,18 @@ void ExperimentDesigner::CompareCameraPoseEstimation()
 }
 
 
-void ExperimentDesigner::PrintDisparityMaps(std::size_t index)
+void ExperimentDesigner::PrintMatchedImages()
 {
 
-    stereo_dataset_.SetImages(index);
-    stereo_dataset_.SetCalibrations(index);
-    stereo_dataset_.SetDisparityMaps(index);
+    stereo_dataset_.SetImages(0);
 
     feature_extractor_.SetImages(stereo_dataset_.GetImages());
 
-    std::array<std::size_t, 2> feature_extractor_types = {1, 3};
-    std::array<std::string, 2> feature_extractor_names = {"SIFT", "BRISK"};
-    std::array<std::string, 2> dense_matcher_names = {"StereoBM", "StereoSGBM"};
+    feature_extractor_.ExtractFeatures(2);
 
-    cv::Mat rotation;
-    cv::Mat translation;
+    sparse_matcher_.MatchSparselyBFMinDistance(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 5.0);
 
-    for (std::size_t i = 0; i < 2; i++)
-    {
-        feature_extractor_.ExtractFeatures(feature_extractor_types[i]);
-
-        if (feature_extractor_types[i] == 1)
-            sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 50);
-        else
-            sparse_matcher_.MatchSparselyFLANNBased(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 0.6);
-        
-        camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
-
-        camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
-
-        camera_pose_estimator_.EstimateCameraPose(3);
-
-        rotation = camera_pose_estimator_.GetRotation();
-        translation = camera_pose_estimator_.GetTranslation();
-
-        dense_matcher_.LoadData(stereo_dataset_, rotation, translation);
-
-        dense_matcher_.RectifyImages();
-
-        for (std::size_t j = 0; j < 2; j++)
-        {
-            dense_matcher_.ComputeDisparityMap(j);
-            cv::imwrite("../" + feature_extractor_names[i] + dense_matcher_names[j] + ".png", dense_matcher_.GetColorfulDisparityMap());
-        }
-    }
-
-    cv::Mat gt;
-    cv::applyColorMap(stereo_dataset_.GetDisparityMaps()[0], gt, cv::COLORMAP_JET);
-    cv::imwrite("../gt.png", gt);
-
+    sparse_matcher_.DisplayMatchings(stereo_dataset_.GetImages(), feature_extractor_.GetKeypoints(), true);
 }
 
 
@@ -428,23 +391,9 @@ void ExperimentDesigner::CompareDisparityMaps(std::size_t dense_matcher_type)
         stereo_dataset_.SetCalibrations(i);
         stereo_dataset_.SetDisparityMaps(i);
 
-        feature_extractor_.SetImages(stereo_dataset_.GetImages());
+        dense_matcher_.LoadDataDirectly(stereo_dataset_);
 
-        feature_extractor_.ExtractFeatures(3);
-
-        sparse_matcher_.MatchSparselyBFSortTop(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 150);
-        
-        camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
-
-        camera_pose_estimator_.SetMatchedPoints(sparse_matcher_.GetMatchedPoints());
-
-        camera_pose_estimator_.EstimateCameraPose(3);
-
-        dense_matcher_.LoadData(stereo_dataset_, camera_pose_estimator_.GetRotation(), camera_pose_estimator_.GetTranslation());
-
-        dense_matcher_.RectifyImages();
-
-        dense_matcher_.ComputeDisparityMap(dense_matcher_type);
+        dense_matcher_.ComputeDisparityMapDirectly(dense_matcher_type);
 
         pixel_ratio_1 += ComputePixelRatio(dense_matcher_.GetDisparityMap(), stereo_dataset_.GetDisparityMaps()[0], 1.0);
         pixel_ratio_2 += ComputePixelRatio(dense_matcher_.GetDisparityMap(), stereo_dataset_.GetDisparityMaps()[0], 2.0);
@@ -459,6 +408,28 @@ void ExperimentDesigner::CompareDisparityMaps(std::size_t dense_matcher_type)
     std::cout << "pixel ratio 4.0: " << pixel_ratio_4 / static_cast<double>(image_pair_number) << '\n';
     std::cout << "average error: " << average_error / static_cast<double>(image_pair_number) << '\n';
     std::cout << "rmse: " << rmse / static_cast<double>(image_pair_number) << '\n';
+
+}
+
+
+void ExperimentDesigner::PrintDisparityMaps(std::size_t index)
+{
+
+    stereo_dataset_.SetImages(index);
+    stereo_dataset_.SetCalibrations(index);
+    stereo_dataset_.SetDisparityMaps(index);
+
+    dense_matcher_.LoadDataDirectly(stereo_dataset_);
+
+    for (std::size_t j = 0; j < 2; j++)
+    {
+        dense_matcher_.ComputeDisparityMapDirectly(j);
+        cv::imwrite("../2" + DENSE_MATCHER_NAMES_[j] + ".png", dense_matcher_.GetColorfulDisparityMap());
+    }
+
+    cv::Mat gt;
+    cv::applyColorMap(stereo_dataset_.GetDisparityMaps()[0], gt, cv::COLORMAP_JET);
+    cv::imwrite("../2gt.png", gt);
 
 }
 
