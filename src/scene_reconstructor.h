@@ -31,6 +31,8 @@ class SceneReconstructor
 
         cv::Point3f RotateY(const cv::Point3f& point, float theta);
 
+        bool AreDistancesValid(Vertex* vertices, std::size_t index0, std::size_t index1, std::size_t index2, float distance_threshold);
+
     public:
         SceneReconstructor() {}
 
