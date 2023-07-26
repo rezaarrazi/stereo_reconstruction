@@ -57,6 +57,12 @@ class ExperimentDesigner
 
         void ReconstructScenesDirectly(std::size_t index, std::size_t dense_matcher_type);
 
+        void ReconstructScenesGT(std::size_t index);
+
+        void ReconstructScenes(std::size_t index, std::size_t dense_matcher_type, const std::string& mesh_index);
+
+        void ReconstructScenesGT1(std::size_t index, const std::string& mesh_index);
+
 };
 
 
