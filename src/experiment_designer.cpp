@@ -453,7 +453,72 @@ void ExperimentDesigner::ReconstructScenesDirectly(std::size_t index, std::size_
 
     scene_reconstructor_.ReconstructScene(dense_matcher_.GetDisparityMap(), stereo_dataset_, distance_threshold);
 
-    scene_reconstructor_.WriteMeshToFile("../mesh.off");
+    scene_reconstructor_.WriteMeshToFile("../1" + DENSE_MATCHER_NAMES_[dense_matcher_type] + "mesh.off");
+
+}
+
+
+void ExperimentDesigner::ReconstructScenesGT(std::size_t index)
+{
+
+    stereo_dataset_.SetImages(index);
+
+    stereo_dataset_.SetCalibrations(index);
+
+    stereo_dataset_.SetDisparityMaps(index);
+    
+    float distance_threshold = 20000.0;
+
+    scene_reconstructor_.LoadData(stereo_dataset_);
+
+    scene_reconstructor_.ReconstructScene(stereo_dataset_.GetDisparityMaps()[0], stereo_dataset_, distance_threshold);
+
+    scene_reconstructor_.WriteMeshToFile("../1gtmesh.off");
+
+}
+
+
+void ExperimentDesigner::ReconstructScenes(std::size_t index, std::size_t dense_matcher_type, const std::string& mesh_index)
+{
+
+    stereo_dataset_.SetImages(index);
+
+    stereo_dataset_.SetCalibrations(index);
+
+    dense_matcher_.LoadDataDirectly(stereo_dataset_);
+
+    dense_matcher_.ComputeDisparityMapWithoutConversion(dense_matcher_type);
+
+    stereo_dataset_.SetDisparityMaps(index);
+    
+    float distance_threshold = 300.0;
+
+    scene_reconstructor_.LoadData(stereo_dataset_);
+
+    scene_reconstructor_.ReconstructSceneDirectly(dense_matcher_.GetDisparityMap(), stereo_dataset_, distance_threshold,
+                                                  "../" + mesh_index + DENSE_MATCHER_NAMES_[dense_matcher_type] + "mesh.off");
+
+}
+
+
+void ExperimentDesigner::ReconstructScenesGT1(std::size_t index, const std::string& mesh_index)
+{
+
+    stereo_dataset_.SetImages(index);
+
+    stereo_dataset_.SetCalibrations(index);
+
+    stereo_dataset_.SetDisparityMaps(index);
+
+    cv::Mat disparity_map = stereo_dataset_.GetDisparityMaps()[0];
+
+    disparity_map.convertTo(disparity_map, CV_16SC1);
+    
+    float distance_threshold = 300.0;
+
+    scene_reconstructor_.LoadData(stereo_dataset_);
+
+    scene_reconstructor_.ReconstructSceneDirectly(disparity_map, stereo_dataset_, distance_threshold, "../" + mesh_index + "gtmesh.off");
 
 }
 
