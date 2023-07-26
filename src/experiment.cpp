@@ -28,7 +28,7 @@ int main()
 
     // experiment_designer.CompareCameraPoseEstimation();
 
-    experiment_designer.PrintMatchedImages();
+    // experiment_designer.PrintMatchedImages();
 
     // experiment_designer.CompareDisparityMaps(0);
     // std::cout << "\n\n";
@@ -37,7 +37,17 @@ int main()
 
     // experiment_designer.PrintDisparityMaps(5);
 
+    // experiment_designer.ReconstructScenesDirectly(0, 0);
     // experiment_designer.ReconstructScenesDirectly(0, 1);
+    // experiment_designer.ReconstructScenesGT(0);
+
+    experiment_designer.ReconstructScenes(0, 0, "1");
+    experiment_designer.ReconstructScenes(0, 1, "1");
+    experiment_designer.ReconstructScenesGT1(0, "1");
+
+    experiment_designer.ReconstructScenes(5, 0, "2");
+    experiment_designer.ReconstructScenes(5, 1, "2");
+    experiment_designer.ReconstructScenesGT1(5, "2");
 
     return 0;
 
