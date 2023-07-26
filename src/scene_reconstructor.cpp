@@ -13,6 +13,15 @@ cv::Point3f SceneReconstructor::RotateY(const cv::Point3f& point, float theta)
 }
 
 
+bool SceneReconstructor::AreDistancesValid(Vertex* vertices, std::size_t index0, std::size_t index1, std::size_t index2, float distance_threshold)
+{
+    bool flag0 = (vertices[index0].position_ - vertices[index1].position_).norm() < distance_threshold;
+    bool flag1 = (vertices[index1].position_ - vertices[index2].position_).norm() < distance_threshold;
+    bool flag2 = (vertices[index2].position_ - vertices[index0].position_).norm() < distance_threshold;
+    return flag0 && flag1 && flag2;
+}
+
+
 void SceneReconstructor::LoadData(const StereoDataset& stereo_dataset)
 {
 
@@ -155,6 +164,145 @@ void SceneReconstructor::WriteMeshToFile(const std::string& filename)
         out_file << "3 " << triangle[0] << " " << triangle[1] << " " << triangle[2] << "\n";
 
     out_file.close();
+
+}
+
+
+void SceneReconstructor::ReconstructSceneDirectly(const cv::Mat& disparity_map, const StereoDataset& stereo_dataset,
+                                                  float distance_threshold, const std::string& file_name)
+{
+
+    cv::Mat image0 = stereo_dataset.GetImages()[0];
+
+    cv::Mat camera_intrinsics = stereo_dataset.GetCameraIntrinsics()[0];
+
+    float focal = static_cast<float>(camera_intrinsics.at<double>(0, 0));
+    float center_x = static_cast<float>(camera_intrinsics.at<double>(0, 2));
+    float center_y = static_cast<float>(camera_intrinsics.at<double>(1, 2));
+    float baseline = static_cast<float>(stereo_dataset.GetBaseline());
+
+    // cv::Mat depth_map = 16 * focal * baseline / disparity_map;
+
+    cv::Mat depth_map = cv::Mat::zeros(stereo_dataset.GetImageSize(), CV_16SC1);
+
+    std::size_t rows = depth_map.rows;
+    std::size_t cols = depth_map.cols;
+
+    for (std::size_t i = 0; i < rows; i++)
+    {
+        for (std::size_t j = 0; j < cols; j++)
+        {
+            if (disparity_map.at<short>(i, j) == 0)
+                depth_map.at<short>(i, j) = 0;
+            else
+                depth_map.at<short>(i, j) = 16 * focal * baseline / disparity_map.at<short>(i, j);
+        }
+    }
+
+    for (std::size_t i = 0; i < rows; i++)
+        for (std::size_t j = 0; j < cols; j++)
+            if (depth_map.at<short>(i, j) == -32768)
+                depth_map.at<short>(i, j) = 32767;
+
+    Vertex* vertices = new Vertex[rows * cols];
+
+    float depth = 0.0;
+
+    float x = 0.0;
+    float y = 0.0;
+
+    for (std::size_t i = 0; i < rows; i++)
+    {
+        for (std::size_t j = 0; j < cols; j++)
+        {
+            depth = static_cast<float>(depth_map.at<short>(i, j));
+
+            if (depth != MINF && depth != 0.0 && depth < 32768.0)
+            {
+                x = (j - center_x) * depth / focal;
+                y = (i - center_y) * depth / focal;
+
+                vertices[i * cols + j].position_ = Vector4f(x, y, depth, 1.0);
+
+                vertices[i * cols + j].color_ = Vector4uc(image0.at<cv::Vec3b>(i, j)[2],
+                                                          image0.at<cv::Vec3b>(i, j)[1],
+                                                          image0.at<cv::Vec3b>(i, j)[0],
+                                                          255);
+            }
+            else
+            {
+                vertices[i * cols + j].position_ = Vector4f(MINF, MINF, MINF, MINF);
+                vertices[i * cols + j].color_ = Vector4uc(0, 0, 0, 0);
+            }
+        }
+    }
+
+    std::vector<std::array<std::size_t, 3>> faces;
+
+    std::size_t face_number = 0;
+
+    std::array<std::size_t, 4> indices = {0, 0, 0, 0};
+
+    std::array<bool, 4> valid_conditions = {false, false, false, false};
+
+    for (std::size_t i = 0; i < rows - 1; i++)
+    {
+        for (std::size_t j = 0; j < cols - 1; j++)
+        {
+            indices[0] = i * cols + j;
+            indices[1] = (i + 1) * cols + j;
+            indices[2] = i * cols + j + 1;
+            indices[3] = (i + 1) * cols + j + 1;
+
+            for (std::size_t k = 0; k < 4; k++)
+                valid_conditions[k] = vertices[indices[k]].position_[0] != MINF;
+            
+            if (valid_conditions[0] == true && valid_conditions[1] == true && valid_conditions[2] == true)
+            {
+                if (AreDistancesValid(vertices, indices[0], indices[1], indices[2], distance_threshold) == true)
+                {
+                    faces.push_back(std::array<std::size_t, 3>{indices[0], indices[1], indices[2]});
+                    face_number++;
+                }
+            }
+
+            if (valid_conditions[1] == true && valid_conditions[3] == true && valid_conditions[2] == true)
+            {
+                if (AreDistancesValid(vertices, indices[1], indices[3], indices[2], distance_threshold) == true)
+                {
+                    faces.push_back(std::array<std::size_t, 3>{indices[1], indices[3], indices[2]});
+                    face_number++;
+                }
+            }
+        }
+    }
+
+    std::ofstream out_file(file_name);
+
+    out_file << "COFF" << std::endl;
+    out_file << rows * cols << " " << face_number << " 0" << std::endl;
+
+    for (std::size_t i = 0; i < rows * cols; i++)
+    {
+        if (vertices[i].position_[0] == MINF)
+            out_file << "0.0 0.0 0.0 ";
+        else
+            for (std::size_t j = 0; j < 3; j++)
+                out_file << vertices[i].position_[j] << " ";
+
+        for (std::size_t j = 0; j < 3; j++)
+            out_file << static_cast<int>(vertices[i].color_[j]) << " ";
+
+        out_file << static_cast<int>(vertices[i].color_[3]) << std::endl;
+    }
+
+    for (std::size_t i = 0; i < faces.size(); i++)
+        out_file << "3 " << faces[i][0] << " " << faces[i][1] << " " << faces[i][2] << " " << std::endl;
+    
+    out_file.close();
+
+    delete[] vertices;
+    vertices = nullptr;
 
 }
 
