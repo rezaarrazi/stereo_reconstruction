@@ -154,7 +154,7 @@ void DenseMatcher::ComputeDisparityMapDirectly(std::size_t type)
 }
 
 
-void DenseMatcher::ComputeDisparityMapTry(std::size_t type)
+void DenseMatcher::ComputeDisparityMapWithoutConversion(std::size_t type)
 {
     if (type == 0)
     {
