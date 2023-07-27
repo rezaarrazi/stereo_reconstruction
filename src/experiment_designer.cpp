@@ -143,8 +143,10 @@ void ExperimentDesigner::CompareKeypointNumber()
             feature_extractor_.ExtractFeatures(j);
             keypoint_numbers[j] += feature_extractor_.GetAverageKeypointNumber();
         }
-
-        superglue_.run(stereo_dataset_.GetImagePairPath()[0], stereo_dataset_.GetImagePairPath()[1], 640, true);
+        
+        superglue_.SetImages(stereo_dataset_.GetImagePairPath()[0], stereo_dataset_.GetImagePairPath()[1], 640);
+        superglue_.ExtractFeatures();
+        
         keypoint_numbers[4] += superglue_.GetAverageKeypointNumber();
     }
 
@@ -326,7 +328,9 @@ void ExperimentDesigner::SuperGlueRotationTranslationError()
         stereo_dataset_.SetImages(i);
         stereo_dataset_.SetCalibrations(i);
 
-        superglue_.run(stereo_dataset_.GetImagePairPath()[0], stereo_dataset_.GetImagePairPath()[1], 640, true);
+        superglue_.SetImages(stereo_dataset_.GetImagePairPath()[0], stereo_dataset_.GetImagePairPath()[1], 640);
+        superglue_.ExtractFeatures();
+        superglue_.MatchFeatures(false);
 
         camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
 

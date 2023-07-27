@@ -4,7 +4,6 @@ project(StereoReconstruction)
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_CXX_FLAGS "-std=c++11 -O3")
 set(SUPERGLUE_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src/superglue)
 message("Superglue include directories: ${SUPERGLUE_INCLUDE_DIRS}")
 
@@ -34,7 +33,6 @@ set(EXPERIMENT src/stereo_dataset.h src/stereo_dataset.cpp
                src/dense_matcher.h src/dense_matcher.cpp
                src/superglue/superglue.cpp src/scene_reconstructor.cpp
                src/experiment_designer.h src/experiment_designer.cpp
-               src/scene_reconstructor.cpp
                src/experiment.cpp)
 
 add_executable(test ${TEST})
@@ -49,14 +47,9 @@ set_property(TARGET experiment PROPERTY CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra ${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 file(COPY
   ${CMAKE_CURRENT_SOURCE_DIR}/src/superglue/SuperPoint.zip
   ${CMAKE_CURRENT_SOURCE_DIR}/src/superglue/SuperGlue.zip
   DESTINATION ${CMAKE_BINARY_DIR}/superglue/
 )
-
-
-
-

@@ -42,13 +42,13 @@ int main()
     // experiment_designer.ReconstructScenesDirectly(0, 1);
     // experiment_designer.ReconstructScenesGT(0);
 
-    experiment_designer.ReconstructScenes(0, 0, "1");
-    experiment_designer.ReconstructScenes(0, 1, "1");
-    experiment_designer.ReconstructScenesGT1(0, "1");
+    // experiment_designer.ReconstructScenes(0, 0, "1");
+    // experiment_designer.ReconstructScenes(0, 1, "1");
+    // experiment_designer.ReconstructScenesGT1(0, "1");
 
-    experiment_designer.ReconstructScenes(5, 0, "2");
-    experiment_designer.ReconstructScenes(5, 1, "2");
-    experiment_designer.ReconstructScenesGT1(5, "2");
+    // experiment_designer.ReconstructScenes(5, 0, "2");
+    // experiment_designer.ReconstructScenes(5, 1, "2");
+    // experiment_designer.ReconstructScenesGT1(5, "2");
 
     return 0;
 
