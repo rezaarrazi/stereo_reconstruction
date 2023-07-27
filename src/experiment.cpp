@@ -6,7 +6,8 @@ int main()
 
     ExperimentDesigner experiment_designer;
 
-    // experiment_designer.CompareKeypointNumber();
+    experiment_designer.CompareKeypointNumber();
+    experiment_designer.SuperGlueRotationTranslationError();
 
     // for (std::size_t i = 0; i < 4; i++)
     // {

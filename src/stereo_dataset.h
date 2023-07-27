@@ -24,6 +24,7 @@ class StereoDataset
         std::vector<std::string> folder_names_;
         std::size_t image_pair_number_ = 0;
 
+        std::array<std::string, 2> image_pair_paths_;
         std::array<cv::Mat, 2> images_;
         std::array<cv::Mat, 2> disparity_maps_;
 
@@ -56,6 +57,8 @@ class StereoDataset
 
         double GetBaseline() const;
 
+        std::array<std::string, 2> GetImagePairPath() const;
+        
         std::size_t GetImageWidth() const;
 
         std::size_t GetImageHeight() const;

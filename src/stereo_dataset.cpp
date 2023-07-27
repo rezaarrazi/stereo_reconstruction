@@ -119,6 +119,11 @@ double StereoDataset::GetBaseline() const
     return baseline_;
 }
 
+std::array<std::string, 2> StereoDataset::GetImagePairPath() const
+{
+    return image_pair_paths_;
+
+}
 
 std::size_t StereoDataset::GetImageWidth() const
 {
@@ -152,6 +157,9 @@ void StereoDataset::SetImages(std::size_t image_id)
     else
     {
         std::string image_pair_path = data_path_ + "/" + folder_names_[image_id] + "/";
+        image_pair_paths_[0] = image_pair_path + "im0.png";
+        image_pair_paths_[1] = image_pair_path + "im1.png";
+
         images_[0] = cv::imread(image_pair_path + "im0.png", CV_LOAD_IMAGE_COLOR);
         images_[1] = cv::imread(image_pair_path + "im1.png", CV_LOAD_IMAGE_COLOR);
     }

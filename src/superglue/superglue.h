@@ -33,5 +33,6 @@ public:
     std::array<std::vector<cv::Point2f>, 2> GetMatchedPoints() const;
     const std::array<std::vector<cv::Point2f>, 2>& GetKeypoints() const;
     const std::array<cv::Mat, 2>& GetImagePair() const;
+    std::size_t GetAverageKeypointNumber() const;
 
 };

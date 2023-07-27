@@ -4,12 +4,12 @@
 #include "camera_pose_estimator.h"
 #include "dense_matcher.h"
 #include "scene_reconstructor.h"
-// #include "superglue.h"
+#include "superglue.h"
 
 
 int main()
 {
-
+    int index = 0;
     StereoDataset stereo_dataset;
     DenseMatcher dense_matcher;
     SceneReconstructor scene_reconstructor;
@@ -56,16 +56,18 @@ int main()
 
     // sparse_matcher.MatchSparselyBFSortTop(feature_extractor.GetKeypoints(), feature_extractor.GetFeatures(), 50);
     
-    // SuperGlue superglue("./superglue/SuperPoint.zip", "./superglue/SuperGlue.zip");
-    // superglue.run("../Data/Middlebury/chess1/im0.png", "../Data/Middlebury/chess1/im1.png", 640, true);
+    SuperGlue superglue("./superglue/SuperPoint.zip", "./superglue/SuperGlue.zip");
+
+    superglue.run(stereo_dataset.GetImagePairPath()[0], stereo_dataset.GetImagePairPath()[1], 640, true);
 
     // sparse_matcher.DisplayMatchings(stereo_dataset.GetImages(), feature_extractor.GetKeypoints(), true);
 
     // stereo_dataset.SetCalibrations(0);
 
-    // CameraPoseEstimator camera_pose_estimator;
-    // camera_pose_estimator.SetCameraIntrinsics(stereo_dataset.GetCameraIntrinsics());
-    // camera_pose_estimator.SetMatchedPoints(sparse_matcher.GetMatchedPoints());
+    CameraPoseEstimator camera_pose_estimator;
+    camera_pose_estimator.SetCameraIntrinsics(stereo_dataset.GetCameraIntrinsics());
+    camera_pose_estimator.SetMatchedPoints(sparse_matcher.GetMatchedPoints());
+    // camera_pose_estimator.SetMatchedPoints(superglue.GetMatchedPoints());
 
     // camera_pose_estimator.EstimateCameraPose(3);
 
@@ -88,7 +90,7 @@ int main()
     // dense_matcher.RectifyImages();
     // dense_matcher.ComputeDisparityMap(1);
 
-    // stereo_dataset.SetDisparityMaps(0);
+    stereo_dataset.SetDisparityMaps(index);
     
     // float distance_threshold = 20000.0;
     // SceneReconstructor scene_reconstructor;

@@ -103,7 +103,7 @@ void SuperGlue::run(const std::string& image0Path, const std::string& image1Path
     if(plot){
         cv::Mat plot =
             make_matching_plot_fast(image0, image1, keypoints0, keypoints1, mkpts0, mkpts1, confidence);
-        cv::imwrite("matches.png", plot);
+        cv::imwrite("matches_superglue.png", plot);
     }
 }
 
@@ -117,4 +117,11 @@ const std::array<std::vector<cv::Point2f>, 2>& SuperGlue::GetKeypoints() const {
 
 const std::array<cv::Mat, 2>& SuperGlue::GetImagePair() const {
     return image_pair;
+}
+
+std::size_t SuperGlue::GetAverageKeypointNumber() const
+{
+    std::size_t keypoint_number0 = keypoints[0].size();
+    std::size_t keypoint_number1 = keypoints[1].size();
+    return static_cast<std::size_t>((keypoint_number0 + keypoint_number1) / 2.0);
 }

@@ -128,8 +128,8 @@ double ExperimentDesigner::ComputeDisparityMapRMSE(const cv::Mat& disparity_map,
 void ExperimentDesigner::CompareKeypointNumber()
 {
 
-    // The order is ORB, SIFT, SURF, BRISK
-    std::array<std::size_t, 4> keypoint_numbers = {0, 0, 0, 0};
+    // The order is ORB, SIFT, SURF, BRISK, SUPERGLUE
+    std::array<std::size_t, 5> keypoint_numbers = {0, 0, 0, 0, 0};
 
     std::size_t image_pair_number = stereo_dataset_.GetImagePairNumber();
 
@@ -143,9 +143,12 @@ void ExperimentDesigner::CompareKeypointNumber()
             feature_extractor_.ExtractFeatures(j);
             keypoint_numbers[j] += feature_extractor_.GetAverageKeypointNumber();
         }
+
+        superglue_.run(stereo_dataset_.GetImagePairPath()[0], stereo_dataset_.GetImagePairPath()[1], 640, true);
+        keypoint_numbers[4] += superglue_.GetAverageKeypointNumber();
     }
 
-    for (std::size_t i = 0; i < 4; i++)
+    for (std::size_t i = 0; i < 5; i++)
         std::cout << FEATURE_EXTRACTOR_NAMES_[i] << ": " << static_cast<std::size_t>(keypoint_numbers[i] / image_pair_number) << '\n';
 
 }
@@ -306,6 +309,42 @@ void ExperimentDesigner::CompareFeatureExtractionAndFLANNBased(std::size_t featu
 
     for (std::size_t i = 0; i < 3; i++)
         std::cout << ratios[i] << ": rotation: " << rmses[i][0] << " translation: " << rmses[i][1] << '\n';
+
+}
+
+void ExperimentDesigner::SuperGlueRotationTranslationError()
+{
+    std::array<double, 2> rmses;
+
+    for (std::size_t j = 0; j < 2; j++)
+        rmses[j] = 0.0;
+
+    std::size_t image_pair_number = stereo_dataset_.GetImagePairNumber();
+
+    for (std::size_t i = 0; i < image_pair_number; i++)
+    {
+        stereo_dataset_.SetImages(i);
+        stereo_dataset_.SetCalibrations(i);
+
+        superglue_.run(stereo_dataset_.GetImagePairPath()[0], stereo_dataset_.GetImagePairPath()[1], 640, true);
+
+        camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
+
+        camera_pose_estimator_.SetMatchedPoints(superglue_.GetMatchedPoints());
+        camera_pose_estimator_.EstimateCameraPose(3);
+
+        std::array<double, 2> rmse = ComputeRMSE(camera_pose_estimator_.GetRotation(), camera_pose_estimator_.GetTranslation());
+
+        rmses[0] += rmse[0];
+        rmses[1] += rmse[1];
+
+    }
+
+    rmses[0] /= image_pair_number;
+    rmses[1] /= image_pair_number;
+
+    std::cout << FEATURE_EXTRACTOR_NAMES_[4] << '\n';
+    std::cout << ": rotation: " << rmses[0] << " translation: " << rmses[1] << '\n';
 
 }
 
