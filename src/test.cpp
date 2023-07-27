@@ -33,11 +33,11 @@ int main()
         {
             dense_matcher.ComputeDisparityMapDirectly(j);
             scene_reconstructor.LoadData(stereo_dataset);
-            scene_reconstructor.ReconstructScene(dense_matcher.GetDisparityMap(), stereo_dataset, distance_threshold);
+            scene_reconstructor.ReconstructScene(dense_matcher.GetDisparityMap(), distance_threshold);
             scene_reconstructor.WriteMeshToFile("../" + file_indices[i] + dense_matcher_names[j] + "mesh.off");
         }
 
-        scene_reconstructor.ReconstructScene(stereo_dataset.GetDisparityMaps()[0], stereo_dataset, distance_threshold);
+        scene_reconstructor.ReconstructScene(stereo_dataset.GetDisparityMaps()[0], distance_threshold);
 
         scene_reconstructor.WriteMeshToFile("../" + file_indices[i] + "gtmesh.off");
     }

@@ -23,7 +23,7 @@ set(TEST src/stereo_dataset.h src/stereo_dataset.cpp
          src/sparse_matcher.h src/sparse_matcher.cpp
          src/camera_pose_estimator.h src/camera_pose_estimator.cpp
          src/dense_matcher.h src/dense_matcher.cpp 
-         src/superglue/superglue.cpp src/mesh_reconstruction.cpp
+         src/superglue/superglue.cpp src/scene_reconstructor.cpp
          src/test.cpp)
 
 set(EXPERIMENT src/stereo_dataset.h src/stereo_dataset.cpp
@@ -33,6 +33,7 @@ set(EXPERIMENT src/stereo_dataset.h src/stereo_dataset.cpp
                src/camera_pose_estimator.h src/camera_pose_estimator.cpp
                src/dense_matcher.h src/dense_matcher.cpp
                src/experiment_designer.h src/experiment_designer.cpp
+               src/scene_reconstructor.cpp
                src/experiment.cpp)
 
 add_executable(test ${TEST})

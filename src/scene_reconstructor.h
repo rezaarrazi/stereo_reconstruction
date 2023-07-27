@@ -25,6 +25,7 @@ class SceneReconstructor
 {
 
     private:
+        std::array<cv::Mat, 2> images_;
         cv::Mat projection_matrix_; // projection matrix
         cv::Mat point_cloud_; // 3D point cloud representation
         cv::Mat color_cloud_; // Color information for each point in the point cloud
@@ -38,7 +39,7 @@ class SceneReconstructor
 
         void LoadData(const StereoDataset& stereo_dataset);
 
-        void ReconstructScene(const cv::Mat& disparity_map, const StereoDataset& stereo_dataset, float distance_threshold);
+        void ReconstructScene(const cv::Mat& disparity_map, float distance_threshold);
 
         void WriteMeshToFile(const std::string& filename);
 

@@ -39,10 +39,13 @@ void SceneReconstructor::LoadData(const StereoDataset& stereo_dataset)
                                                    0, 0, 0, -f,
                                                    0, 0, -1 / baseline, doffs / baseline);
 
+    images_[0] = stereo_dataset.GetImages()[0].clone();
+    images_[1] = stereo_dataset.GetImages()[1].clone();
+
 }
 
 
-void SceneReconstructor::ReconstructScene(const cv::Mat& disparity_map, const StereoDataset& stereo_dataset, float distance_threshold)
+void SceneReconstructor::ReconstructScene(const cv::Mat& disparity_map, float distance_threshold)
 {
 
     cv::reprojectImageTo3D(disparity_map, point_cloud_, projection_matrix_);
@@ -70,9 +73,9 @@ void SceneReconstructor::ReconstructScene(const cv::Mat& disparity_map, const St
     }
 
     // Add color information
-    std::array<cv::Mat, 2> images = stereo_dataset.GetImages();
-    cv::cvtColor(images[0], images[0], cv::COLOR_BGR2RGB); // Ensure color image is in RGB
-    color_cloud_ = images[0].clone();
+    cv::Mat color_tmp = images_[0].clone();
+    cv::cvtColor(color_tmp, color_tmp, cv::COLOR_BGR2RGB); // Ensure color image is in RGB
+    color_cloud_ = color_tmp;
 
 }
 

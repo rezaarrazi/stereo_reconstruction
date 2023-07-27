@@ -451,7 +451,7 @@ void ExperimentDesigner::ReconstructScenesDirectly(std::size_t index, std::size_
 
     scene_reconstructor_.LoadData(stereo_dataset_);
 
-    scene_reconstructor_.ReconstructScene(dense_matcher_.GetDisparityMap(), stereo_dataset_, distance_threshold);
+    scene_reconstructor_.ReconstructScene(dense_matcher_.GetDisparityMap(), distance_threshold);
 
     scene_reconstructor_.WriteMeshToFile("../1" + DENSE_MATCHER_NAMES_[dense_matcher_type] + "mesh.off");
 
@@ -471,7 +471,7 @@ void ExperimentDesigner::ReconstructScenesGT(std::size_t index)
 
     scene_reconstructor_.LoadData(stereo_dataset_);
 
-    scene_reconstructor_.ReconstructScene(stereo_dataset_.GetDisparityMaps()[0], stereo_dataset_, distance_threshold);
+    scene_reconstructor_.ReconstructScene(stereo_dataset_.GetDisparityMaps()[0], distance_threshold);
 
     scene_reconstructor_.WriteMeshToFile("../1gtmesh.off");
 

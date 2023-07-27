@@ -13,7 +13,9 @@ void DenseMatcher::LoadData(const StereoDataset& stereo_dataset, const cv::Mat& 
 
 void DenseMatcher::LoadDataDirectly(const StereoDataset& stereo_dataset)
 {
-    images_ = stereo_dataset.GetImages();
+    images_[0] = stereo_dataset.GetImages()[0].clone();
+    images_[1] = stereo_dataset.GetImages()[1].clone();
+
     image_size_ = stereo_dataset.GetImageSize();
     camera_intrinsics_ = stereo_dataset.GetCameraIntrinsics();
 }
