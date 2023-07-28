@@ -5,20 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
-#include "Eigen.h"
 #include "stereo_dataset.h"
-
-
-class Vertex
-{
-
-    public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-        Vector4f position_;
-        Vector4uc color_;
-
-};
 
 
 class SceneReconstructor
@@ -32,8 +19,6 @@ class SceneReconstructor
 
         cv::Point3f RotateY(const cv::Point3f& point, float theta);
 
-        bool AreDistancesValid(Vertex* vertices, std::size_t index0, std::size_t index1, std::size_t index2, float distance_threshold);
-
     public:
         SceneReconstructor() {}
 
@@ -42,9 +27,6 @@ class SceneReconstructor
         void ReconstructScene(const cv::Mat& disparity_map, float distance_threshold);
 
         void WriteMeshToFile(const std::string& filename);
-
-        void ReconstructSceneDirectly(const cv::Mat& disparity_map, const StereoDataset& stereo_dataset,
-                                      float distance_threshold, const std::string& file_name);
 
 };
 
