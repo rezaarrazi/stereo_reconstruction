@@ -58,7 +58,7 @@ class DenseMatcher
 
         void ComputeDisparityMapWithoutConversion(std::size_t type);
 
-        void FillHoles(std::size_t type, std::size_t window_size);
+        void FilterMedian();
 
 };
 
