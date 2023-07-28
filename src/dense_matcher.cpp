@@ -186,54 +186,43 @@ void DenseMatcher::ComputeDisparityMapWithoutConversion(std::size_t type)
 }
 
 
-void DenseMatcher::FillHoles(std::size_t type, std::size_t window_size)
+void DenseMatcher::FilterMedian()
 {
 
-    std::size_t image_height = disparity_map_.rows;
-    std::size_t image_width = disparity_map_.cols;
+    std::size_t rows = disparity_map_.rows;
+    std::size_t cols = disparity_map_.cols;
 
-    uchar maximum_value = 0;
-    std::size_t value = 0;
+    std::size_t row_index = static_cast<std::size_t>(rows / 2);
+    std::size_t col_index = 0;
 
-    cv::Mat filled_disparity_map = disparity_map_.clone();
+    while (disparity_map_.at<uchar>(row_index, col_index) == 0)
+        col_index++;
 
-    std::size_t half_size = static_cast<std::size_t>(window_size / 2);
+    cv::Mat filtered_disparity_map = disparity_map_.clone();
 
-    std::size_t window_element_number = window_size * window_size;
+    std::array<uchar, 9> values = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    std::size_t index = 0;
 
-    if (type == 0)
+    for (std::size_t i = 1; i < rows - 1; i++)
     {
-        for (std::size_t i = half_size; i < image_height - half_size; i++)
-            for (std::size_t j = half_size; j < image_width - half_size; j++)
-                if (disparity_map_.at<uchar>(i, j) < 10)
-                {
-                    maximum_value = 0;
+        for (std::size_t j = col_index; j < cols - 1; j++)
+        {
+            if (disparity_map_.at<uchar>(i, j) == 0)
+            {
+                index = 0;
 
-                    for (std::size_t k = i - half_size; k < i + half_size + 1; k++)
-                        for (std::size_t l = j - half_size; l < j + half_size + 1; l++)
-                            if (disparity_map_.at<uchar>(k, l) > maximum_value)
-                                maximum_value = disparity_map_.at<uchar>(k, l);
+                for (std::size_t k = i - 1; k < i + 2; k++)
+                    for (std::size_t l = j - 1; l < j + 2; l++)
+                        values[index++] = disparity_map_.at<uchar>(i, j);
 
-                    filled_disparity_map.at<uchar>(i, j) = maximum_value;
-                }
-    }
-    else
-    {
-        for (std::size_t i = half_size; i < image_height - half_size; i++)
-            for (std::size_t j = half_size; j < image_width - half_size; j++)
-                if (disparity_map_.at<uchar>(i, j) < 10)
-                {
-                    value = 0;
+                std::sort(values.begin(), values.end());
 
-                    for (std::size_t k = i - half_size; k < i + half_size + 1; k++)
-                        for (std::size_t l = j - half_size; l < j + half_size + 1; l++)
-                            value += static_cast<std::size_t>(disparity_map_.at<uchar>(k, l));
-                
-                    filled_disparity_map.at<uchar>(i, j) = static_cast<uchar>(static_cast<std::size_t>(value / window_element_number));
-                }
+                filtered_disparity_map.at<uchar>(i, j) = values[4];
+            }
+        }
     }
 
-    disparity_map_ = filled_disparity_map;
+    disparity_map_ = filtered_disparity_map;
 
 }
 
