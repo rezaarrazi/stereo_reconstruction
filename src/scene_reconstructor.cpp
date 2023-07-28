@@ -59,7 +59,8 @@ void SceneReconstructor::ReconstructScene(const cv::Mat& disparity_map, float di
             cv::Point3f& point = point_cloud_.at<cv::Point3f>(i, j);
 
             if (std::isfinite(point.x) && std::isfinite(point.y) && std::isfinite(point.z))
-                point = RotateY(point, 180);
+                point.z *= -1.0f;
+                // point = RotateY(point, 180);
 
             norm = cv::norm(point); // calculate the Euclidean norm (magnitude)
 
@@ -124,8 +125,8 @@ void SceneReconstructor::WriteMeshToFile(const std::string& filename)
                 d2 = cv::norm(points[1] - points[2]);
 
                 if (edge_threshold > d0 && edge_threshold > d1 && edge_threshold > d2)
-                    // triangles.push_back({i * pointCloud.cols + j, (i + 1) * pointCloud.cols + j, i * pointCloud.cols + j + 1});
-                    triangles.push_back({i * cols + j, i * cols + j + 1, (i + 1) * cols + j});
+                    triangles.push_back({i * point_cloud_.cols + j, (i + 1) * point_cloud_.cols + j, i * point_cloud_.cols + j + 1});
+                    // triangles.push_back({i * cols + j, i * cols + j + 1, (i + 1) * cols + j});
             }
 
             if (valid[1] && valid[2] && valid[3])
@@ -135,8 +136,8 @@ void SceneReconstructor::WriteMeshToFile(const std::string& filename)
                 d2 = cv::norm(points[1] - points[2]);
 
                 if (edge_threshold > d0 && edge_threshold > d1 && edge_threshold > d2)
-                    // triangles.push_back({(i + 1) * pointCloud.cols + j, (i + 1) * pointCloud.cols + j + 1, i * pointCloud.cols + j + 1});
-                    triangles.push_back({(i + 1) * cols + j, i * cols + j + 1, (i + 1) * cols + j + 1});
+                    triangles.push_back({(i + 1) * point_cloud_.cols + j, (i + 1) * point_cloud_.cols + j + 1, i * point_cloud_.cols + j + 1});
+                    // triangles.push_back({(i + 1) * cols + j, i * cols + j + 1, (i + 1) * cols + j + 1});
             }
         }
     }
