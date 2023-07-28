@@ -316,10 +316,11 @@ void ExperimentDesigner::CompareFeatureExtractionAndFLANNBased(std::size_t featu
 
 void ExperimentDesigner::SuperGlueRotationTranslationError()
 {
-    std::array<double, 2> rmses;
+    std::array<std::array<double, 2>, 4> rmses;
 
-    for (std::size_t j = 0; j < 2; j++)
-        rmses[j] = 0.0;
+    for (std::size_t i = 0; i < 4; i++)
+        for (std::size_t j = 0; j < 2; j++)
+            rmses[i][j] = 0.0;
 
     std::size_t image_pair_number = stereo_dataset_.GetImagePairNumber();
 
@@ -333,22 +334,28 @@ void ExperimentDesigner::SuperGlueRotationTranslationError()
         superglue_.MatchFeatures(false);
 
         camera_pose_estimator_.SetCameraIntrinsics(stereo_dataset_.GetCameraIntrinsics());
-
         camera_pose_estimator_.SetMatchedPoints(superglue_.GetMatchedPoints());
-        camera_pose_estimator_.EstimateCameraPose(3);
 
-        std::array<double, 2> rmse = ComputeRMSE(camera_pose_estimator_.GetRotation(), camera_pose_estimator_.GetTranslation());
+        for (std::size_t j = 0; j < 4; j++)
+        {
+            camera_pose_estimator_.EstimateCameraPose(j);
 
-        rmses[0] += rmse[0];
-        rmses[1] += rmse[1];
+            std::array<double, 2> rmse = ComputeRMSE(camera_pose_estimator_.GetRotation(), camera_pose_estimator_.GetTranslation());
+
+            rmses[j][0] += rmse[0];
+            rmses[j][1] += rmse[1];
+        }
 
     }
 
-    rmses[0] /= image_pair_number;
-    rmses[1] /= image_pair_number;
+    for (std::size_t i = 0; i < 4; i++)
+    {
+        rmses[i][0] /= image_pair_number;
+        rmses[i][1] /= image_pair_number;
+    }
 
-    std::cout << FEATURE_EXTRACTOR_NAMES_[4] << '\n';
-    std::cout << ": rotation: " << rmses[0] << " translation: " << rmses[1] << '\n';
+    for (std::size_t i = 0; i < 4; i++)
+        std::cout << CAMERA_POSE_ESTIMATOR_NAMES_[i] << ": rotation: " << rmses[i][0] << " translation: " << rmses[i][1] << '\n';
 
 }
 
