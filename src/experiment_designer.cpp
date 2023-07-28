@@ -314,6 +314,7 @@ void ExperimentDesigner::CompareFeatureExtractionAndFLANNBased(std::size_t featu
 
 }
 
+
 void ExperimentDesigner::SuperGlueRotationTranslationError()
 {
     std::array<std::array<double, 2>, 4> rmses;
@@ -421,6 +422,7 @@ void ExperimentDesigner::PrintMatchedImages()
     sparse_matcher_.MatchSparselyBFMinDistance(feature_extractor_.GetKeypoints(), feature_extractor_.GetFeatures(), 5.0);
 
     sparse_matcher_.DisplayMatchings(stereo_dataset_.GetImages(), feature_extractor_.GetKeypoints(), true);
+
 }
 
 
@@ -462,6 +464,41 @@ void ExperimentDesigner::CompareDisparityMaps(std::size_t dense_matcher_type)
 }
 
 
+void ExperimentDesigner::CompareBaselinesDisparityMaps(std::size_t dense_matcher_type)
+{
+
+    std::size_t image_pair_number = stereo_dataset_.GetImagePairNumber();
+
+    double baseline = 0.0;
+
+    double pixel_ratio_1 = 0.0;
+    double pixel_ratio_2 = 0.0;
+    double average_error = 0.0;
+
+    std::cout << DENSE_MATCHER_NAMES_[dense_matcher_type] << '\n';
+
+    for (std::size_t i = 0; i < image_pair_number; i++)
+    {
+        stereo_dataset_.SetImages(i);
+        stereo_dataset_.SetCalibrations(i);
+        stereo_dataset_.SetDisparityMaps(i);
+
+        dense_matcher_.LoadDataDirectly(stereo_dataset_);
+
+        dense_matcher_.ComputeDisparityMapDirectly(dense_matcher_type);
+
+        baseline = stereo_dataset_.GetBaseline();
+
+        pixel_ratio_1 = ComputePixelRatio(dense_matcher_.GetDisparityMap(), stereo_dataset_.GetDisparityMaps()[0], 1.0);
+        pixel_ratio_2 = ComputePixelRatio(dense_matcher_.GetDisparityMap(), stereo_dataset_.GetDisparityMaps()[0], 2.0);
+        average_error = ComputeAverageError(dense_matcher_.GetDisparityMap(), stereo_dataset_.GetDisparityMaps()[0]);
+
+        std::cout << "baseline: " << baseline << " ratio 1: " << pixel_ratio_1 << " ratio 2: " << pixel_ratio_2 << " mae: " << average_error<< '\n';
+    }
+
+}
+
+
 void ExperimentDesigner::PrintDisparityMaps(std::size_t index)
 {
 
@@ -480,95 +517,6 @@ void ExperimentDesigner::PrintDisparityMaps(std::size_t index)
     cv::Mat gt;
     cv::applyColorMap(stereo_dataset_.GetDisparityMaps()[0], gt, cv::COLORMAP_JET);
     cv::imwrite("../2gt.png", gt);
-
-}
-
-
-void ExperimentDesigner::ReconstructScenesDirectly(std::size_t index, std::size_t dense_matcher_type)
-{
-
-    stereo_dataset_.SetImages(index);
-
-    stereo_dataset_.SetCalibrations(index);
-
-    dense_matcher_.LoadDataDirectly(stereo_dataset_);
-
-    dense_matcher_.ComputeDisparityMapDirectly(dense_matcher_type);
-
-    stereo_dataset_.SetDisparityMaps(index);
-    
-    float distance_threshold = 20000.0;
-
-    scene_reconstructor_.LoadData(stereo_dataset_);
-
-    scene_reconstructor_.ReconstructScene(dense_matcher_.GetDisparityMap(), distance_threshold);
-
-    scene_reconstructor_.WriteMeshToFile("../1" + DENSE_MATCHER_NAMES_[dense_matcher_type] + "mesh.off");
-
-}
-
-
-void ExperimentDesigner::ReconstructScenesGT(std::size_t index)
-{
-
-    stereo_dataset_.SetImages(index);
-
-    stereo_dataset_.SetCalibrations(index);
-
-    stereo_dataset_.SetDisparityMaps(index);
-    
-    float distance_threshold = 20000.0;
-
-    scene_reconstructor_.LoadData(stereo_dataset_);
-
-    scene_reconstructor_.ReconstructScene(stereo_dataset_.GetDisparityMaps()[0], distance_threshold);
-
-    scene_reconstructor_.WriteMeshToFile("../1gtmesh.off");
-
-}
-
-
-void ExperimentDesigner::ReconstructScenes(std::size_t index, std::size_t dense_matcher_type, const std::string& mesh_index)
-{
-
-    stereo_dataset_.SetImages(index);
-
-    stereo_dataset_.SetCalibrations(index);
-
-    dense_matcher_.LoadDataDirectly(stereo_dataset_);
-
-    dense_matcher_.ComputeDisparityMapWithoutConversion(dense_matcher_type);
-
-    stereo_dataset_.SetDisparityMaps(index);
-    
-    float distance_threshold = 300.0;
-
-    scene_reconstructor_.LoadData(stereo_dataset_);
-
-    scene_reconstructor_.ReconstructSceneDirectly(dense_matcher_.GetDisparityMap(), stereo_dataset_, distance_threshold,
-                                                  "../" + mesh_index + DENSE_MATCHER_NAMES_[dense_matcher_type] + "mesh.off");
-
-}
-
-
-void ExperimentDesigner::ReconstructScenesGT1(std::size_t index, const std::string& mesh_index)
-{
-
-    stereo_dataset_.SetImages(index);
-
-    stereo_dataset_.SetCalibrations(index);
-
-    stereo_dataset_.SetDisparityMaps(index);
-
-    cv::Mat disparity_map = stereo_dataset_.GetDisparityMaps()[0];
-
-    disparity_map.convertTo(disparity_map, CV_16SC1);
-    
-    float distance_threshold = 300.0;
-
-    scene_reconstructor_.LoadData(stereo_dataset_);
-
-    scene_reconstructor_.ReconstructSceneDirectly(disparity_map, stereo_dataset_, distance_threshold, "../" + mesh_index + "gtmesh.off");
 
 }
 
